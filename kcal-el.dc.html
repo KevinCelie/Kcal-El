@@ -314,6 +314,9 @@
                       <sc-if value="{{ food.isRecipe }}" hint-placeholder-val="{{ false }}">
                         <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#3F51B5;background:#EFF1FB;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
                       </sc-if>
+                      <sc-if value="{{ food.isScanned }}" hint-placeholder-val="{{ false }}">
+                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2E7D32;background:#E8F5E9;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Scanné</span>
+                      </sc-if>
                     </span>
                     <span style="font-size:12px;color:#8B8B94;font-weight:700;white-space:nowrap;margin-left:10px;">{{ food.kcalDisplay }}</span>
                   </button>
@@ -330,6 +333,9 @@
                       <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ food.name }}</span>
                       <sc-if value="{{ food.isRecipe }}" hint-placeholder-val="{{ false }}">
                         <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#3F51B5;background:#EFF1FB;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
+                      </sc-if>
+                      <sc-if value="{{ food.isScanned }}" hint-placeholder-val="{{ false }}">
+                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2E7D32;background:#E8F5E9;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Scanné</span>
                       </sc-if>
                     </span>
                     <span style="font-size:12px;color:#8B8B94;font-weight:700;white-space:nowrap;margin-left:10px;">{{ food.kcalDisplay }}</span>
@@ -705,7 +711,7 @@ async function api(method, path, body) {
   return data;
 }
 
-function foodFromApi(f) { return { id: f.id, name: f.name, kcal: f.kcal_per_100g }; }
+function foodFromApi(f) { return { id: f.id, name: f.name, kcal: f.kcal_per_100g, barcode: f.barcode || null }; }
 function recipeFromApi(r) {
   return {
     id: r.id, name: r.name, totalGrams: r.total_grams, kcalPer100g: r.kcal_per_100g, kcalTotal: r.kcal_total,
@@ -864,7 +870,7 @@ class Component extends DCLogic {
 
   findFoodOrRecipe(id) {
     const f = this.state.foods.find(x => x.id === id);
-    if (f) return { id: f.id, name: f.name, kcal: f.kcal, isRecipe: false };
+    if (f) return { id: f.id, name: f.name, kcal: f.kcal, isRecipe: false, isScanned: !!f.barcode };
     const r = this.state.recipes.find(x => x.id === id);
     if (r) return { id: r.id, name: r.name, kcal: r.kcalPer100g, isRecipe: true, ingredients: r.ingredients };
     return null;
@@ -993,7 +999,7 @@ class Component extends DCLogic {
     const f = this.state.scanFoundFood;
     if (!f) return;
     this.setState({ scanning: false, scanStatus: 'idle', scanFoundFood: null });
-    const created = await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal });
+    const created = await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal, barcode: f.barcode });
     const food = foodFromApi(created);
     this.setState({ foods: [...this.state.foods, food] });
     this.selectFood(food.id);
@@ -1074,8 +1080,9 @@ class Component extends DCLogic {
     const val = parseFloat(this.state.newFoodKcal);
     if (!name || isNaN(val) || val < 0) return;
     const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
+    const barcode = this.state.newFoodBarcode.trim() || null;
     this.setState({ showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '' });
-    const created = await api('POST', '/api/foods', { name, kcal_per_100g: kcal });
+    const created = await api('POST', '/api/foods', { name, kcal_per_100g: kcal, barcode });
     this.setState({ foods: [...this.state.foods, foodFromApi(created)] });
   }
 
@@ -1090,10 +1097,11 @@ class Component extends DCLogic {
     const val = parseFloat(this.state.editKcal);
     if (!name || isNaN(val) || val < 0) return;
     const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
+    const barcode = this.state.editBarcode.trim() || null;
     const previous = this.state.foods;
-    this.setState({ foods: previous.map(f => f.id === id ? { ...f, name, kcal } : f), editingFoodId: null });
+    this.setState({ foods: previous.map(f => f.id === id ? { ...f, name, kcal, barcode } : f), editingFoodId: null });
     try {
-      await api('PATCH', `/api/foods/${id}`, { name, kcal_per_100g: kcal });
+      await api('PATCH', `/api/foods/${id}`, { name, kcal_per_100g: kcal, barcode });
     } catch (err) {
       this.setState({ foods: previous });
       if (typeof window !== 'undefined') window.alert("Impossible de modifier cet aliment (aliment partagé de la base globale).");
@@ -1234,7 +1242,7 @@ class Component extends DCLogic {
     const nq = Component.normalize(query);
     let searchMatches = [];
     if (nq) {
-      const foodMatches = s.foods.filter(f => Component.normalize(f.name).includes(nq)).map(f => ({ id: f.id, name: f.name, kcal: f.kcal, isRecipe: false }));
+      const foodMatches = s.foods.filter(f => Component.normalize(f.name).includes(nq)).map(f => ({ id: f.id, name: f.name, kcal: f.kcal, isRecipe: false, isScanned: !!f.barcode }));
       const recipeMatches = s.recipes.filter(r => Component.normalize(r.name).includes(nq)).map(r => ({ id: r.id, name: r.name, kcal: r.kcalPer100g, isRecipe: true }));
       searchMatches = [...foodMatches, ...recipeMatches].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
     }
