@@ -1,15 +1,15 @@
-name: calotrack
+name: kcal-el
 
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: calotrack
+      POSTGRES_USER: kcal_el
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
-      POSTGRES_DB: calotrack
+      POSTGRES_DB: kcal_el
     volumes:
-      - calotrack_pg_data:/var/lib/postgresql/data
+      - kcal_el_pg_data:/var/lib/postgresql/data
     networks:
       - internal
 
@@ -19,7 +19,7 @@ services:
       dockerfile: backend/Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://calotrack:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}@postgres:5432/calotrack
+      DATABASE_URL: postgres://kcal_el:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}@postgres:5432/kcal_el
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       PORT: 3000
@@ -29,7 +29,7 @@ services:
       internal:
       web:
         aliases:
-          - calotrack-api
+          - kcal-el-api
 
   # Interface d'admin PostgreSQL — jamais sur le réseau `web`/Caddy. Accès
   # uniquement via tunnel SSH : ssh -L 8081:localhost:8081 <user>@<vps-ip>
@@ -52,4 +52,4 @@ networks:
     external: true
 
 volumes:
-  calotrack_pg_data:
+  kcal_el_pg_data:

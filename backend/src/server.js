@@ -30,7 +30,7 @@ await fastify.register(settingsRoutes);
 
 await fastify.register(fastifyStatic, {
   root: projectRoot,
-  index: ['CaloTrack.dc.html'],
+  index: ['kcal-el.dc.html'],
 });
 
 const port = Number(process.env.PORT) || 3000;

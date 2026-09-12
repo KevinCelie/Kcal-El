@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 pg.types.setTypeParser(1082, (val) => val);
 
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://calotrack:calotrack@localhost:5432/calotrack',
+  connectionString: process.env.DATABASE_URL || 'postgres://kcal_el:kcal_el@localhost:5432/kcal_el',
 });
 
 export async function runMigrations() {

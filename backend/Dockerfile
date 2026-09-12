@@ -6,7 +6,7 @@ RUN npm install --omit=dev
 
 COPY backend/ ./
 COPY foods-data.js ../foods-data.js
-COPY CaloTrack.dc.html ../CaloTrack.dc.html
+COPY kcal-el.dc.html ../kcal-el.dc.html
 COPY support.js ../support.js
 
 EXPOSE 3000

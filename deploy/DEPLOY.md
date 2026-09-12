@@ -1,4 +1,4 @@
-# Déployer CaloTrack sur un VPS OVH
+# Déployer Kcal-El sur un VPS OVH
 
 Ce guide part d'un VPS tout neuf jusqu'à l'application accessible sur son
 adresse IP en HTTP. Il pose aussi la convention à suivre pour héberger de
@@ -67,7 +67,7 @@ cat .env   # vérifier que les deux valeurs ont bien été remplacées
 
 `.env` n'est jamais commité (voir `.gitignore`).
 
-## 6. Déployer CaloTrack
+## 6. Déployer Kcal-El
 
 ```bash
 cd ~/Kcal-El/deploy
@@ -102,9 +102,9 @@ ssh -L 8081:localhost:8081 debian@<IP_DU_VPS>
 Puis ouvre `http://localhost:8081` dans ton navigateur et connecte-toi avec :
 - Système : **PostgreSQL**
 - Serveur : `postgres`
-- Utilisateur : `calotrack`
+- Utilisateur : `kcal_el`
 - Mot de passe : la valeur de `POSTGRES_PASSWORD` dans `deploy/.env` sur le VPS
-- Base de données : `calotrack`
+- Base de données : `kcal_el`
 
 Tant que le tunnel SSH n'est pas ouvert, le port 8081 n'est joignable que
 depuis le VPS lui-même (`127.0.0.1:8081:8080` dans `docker-compose.yml`).
@@ -113,7 +113,7 @@ depuis le VPS lui-même (`127.0.0.1:8081:8080` dans `docker-compose.yml`).
 
 Quand un domaine pointe vers l'IP du VPS (enregistrement DNS `A`) :
 
-1. Édite `~/Kcal-El/deploy/caddy/Caddyfile` : remplace `:80` par ton domaine, ex. `calotrack.mondomaine.fr`.
+1. Édite `~/Kcal-El/deploy/caddy/Caddyfile` : remplace `:80` par ton domaine, ex. `kcal-el.mondomaine.fr`.
 2. `cd ~/Kcal-El/deploy/caddy && docker compose restart`
 
 Caddy obtient et renouvelle automatiquement le certificat Let's Encrypt.
@@ -122,7 +122,7 @@ Caddy obtient et renouvelle automatiquement le certificat Let's Encrypt.
 
 Convention à suivre pour chaque nouveau projet :
 
-1. Un dossier dédié (ex. `~/mon-autre-site/`) avec son propre `docker-compose.yml`, qui **rejoint le réseau externe `web`** avec un alias unique pour son service API (ex. `mon-site-api`), comme `deploy/docker-compose.yml` le fait pour `calotrack-api`.
+1. Un dossier dédié (ex. `~/mon-autre-site/`) avec son propre `docker-compose.yml`, qui **rejoint le réseau externe `web`** avec un alias unique pour son service API (ex. `mon-site-api`), comme `deploy/docker-compose.yml` le fait pour `kcal-el-api`.
 2. Un bloc supplémentaire dans `~/Kcal-El/deploy/caddy/Caddyfile` :
    ```
    mon-site.mondomaine.fr {

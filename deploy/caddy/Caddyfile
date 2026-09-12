@@ -1,12 +1,12 @@
 # Reverse proxy partagé. Un bloc par site.
 #
-# --- CaloTrack --------------------------------------------------------
+# --- Kcal-El --------------------------------------------------------
 # Pas de nom de domaine pour l'instant : on répond sur le port 80 pour
 # n'importe quel host (IP du VPS incluse). Dès qu'un domaine est prêt,
-# remplace ":80" par "calotrack.tondomaine.fr" pour activer le HTTPS
+# remplace ":80" par "kcal-el.tondomaine.fr" pour activer le HTTPS
 # automatique (Let's Encrypt) et retire le bloc ":80" ci-dessous.
 :80 {
-	reverse_proxy calotrack-api:3000
+	reverse_proxy kcal-el-api:3000
 }
 
 # --- Futur site n°2 -----------------------------------------------------
