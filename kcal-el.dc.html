@@ -808,6 +808,7 @@ class Component extends DCLogic {
   async boot() {
     try {
       const me = await api('GET', '/api/me');
+      if (!me) throw new Error('no session');
       this.setState({ currentUser: me, showAuth: false });
       await this.loadAllData();
     } catch (err) {
