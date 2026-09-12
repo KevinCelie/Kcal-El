@@ -84,11 +84,37 @@ L'app est maintenant accessible sur `http://<IP_DU_VPS>/`.
 
 ## 7. Mettre à jour après un changement de code
 
+Automatique désormais (voir section suivante). En manuel si besoin :
+
 ```bash
 cd ~/Kcal-El
 git pull
 docker compose -f deploy/docker-compose.yml up -d --build
 ```
+
+## 7bis. CI/CD (déploiement automatique)
+
+Un workflow GitHub Actions (`.github/workflows/deploy.yml`) se déclenche à
+chaque push sur `master` : il se connecte en SSH au VPS et exécute
+`git pull --ff-only && docker compose -f deploy/docker-compose.yml up -d --build`.
+
+Ça utilise une clé SSH **dédiée au CI**, différente de la clé d'admin
+personnelle — ajoutée à `~/.ssh/authorized_keys` sur le VPS, et dont la
+partie privée n'existe que comme secret GitHub chiffré (jamais commitée,
+jamais stockée en clair sur un poste).
+
+Secrets du repo GitHub (`gh secret list`) :
+- `DEPLOY_SSH_KEY` — clé privée dédiée au déploiement
+- `DEPLOY_HOST` — IP du VPS
+- `DEPLOY_USER` — `debian`
+
+Pour révoquer l'accès CI (clé compromise, ou plus besoin) sans toucher aux
+autres accès :
+```bash
+ssh debian@<IP_DU_VPS> "grep -v github-actions-kcal-el-deploy ~/.ssh/authorized_keys > /tmp/ak && mv /tmp/ak ~/.ssh/authorized_keys"
+```
+puis régénérer une nouvelle paire de clés et mettre à jour le secret
+`DEPLOY_SSH_KEY` (`gh secret set DEPLOY_SSH_KEY < nouvelle_clé_privée`).
 
 ## 8. Administration de la base (Adminer)
 
