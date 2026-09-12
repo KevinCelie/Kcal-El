@@ -1,0 +1,40 @@
+name: calotrack
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: calotrack
+      POSTGRES_PASSWORD: calotrack
+      POSTGRES_DB: calotrack
+    volumes:
+      - calotrack_pg_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  api:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgres://calotrack:calotrack@postgres:5432/calotrack
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      PORT: 3000
+    depends_on:
+      - postgres
+    networks:
+      internal:
+      web:
+        aliases:
+          - calotrack-api
+
+networks:
+  internal:
+  web:
+    external: true
+
+volumes:
+  calotrack_pg_data:

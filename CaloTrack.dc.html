@@ -11,13 +11,37 @@
 <helmet>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap">
-  <script src="foods-data.js"></script>
   <style>
     *{box-sizing:border-box;}
     body{margin:0;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
     button,input{font-family:inherit;}
   </style>
 </helmet>
+<sc-if value="{{ showBooting }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#8B8B94;font-size:14px;">Chargement…</div>
+</sc-if>
+<sc-if value="{{ showAuth }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F7F7FA;padding:20px;">
+    <div style="width:100%;max-width:360px;background:#FFFFFF;border-radius:20px;padding:28px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
+      <div style="font-weight:800;font-size:22px;letter-spacing:-0.01em;margin-bottom:4px;">Kcal<span style="color:#3F51B5;">-El</span></div>
+      <div style="font-size:13px;color:#5F5F68;margin-bottom:20px;">{{ authTitle }}</div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Email</label>
+        <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmailChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Mot de passe</label>
+        <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPasswordChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;">
+      </div>
+      <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
+        <p style="color:#C62828;font-size:13px;margin:0 0 12px;">{{ authError }}</p>
+      </sc-if>
+      <button type="button" onClick="{{ submitAuth }}" style="width:100%;height:46px;border-radius:23px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;margin-bottom:10px;" style-hover="background:#303F9F;">{{ authSubmitLabel }}</button>
+      <button type="button" onClick="{{ toggleAuthMode }}" style="width:100%;background:transparent;border:none;color:#3F51B5;font-weight:700;font-size:13px;padding:8px 0;cursor:pointer;">{{ authToggleLabel }}</button>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{ isAuthenticated }}" hint-placeholder-val="{{ true }}">
 <div style="{{ rootStyle }}">
 
   <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
@@ -597,6 +621,10 @@
 
     <div data-screen-label="Profil">
     <sc-if value="{{ isProfilTab }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <span style="font-size:13px;color:#5F5F68;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ currentUserEmail }}</span>
+        <button type="button" onClick="{{ logout }}" style="flex-shrink:0;padding:9px 16px;border-radius:18px;background:#F5F5F7;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#EDEDF2;">Se déconnecter</button>
+      </div>
       <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
         <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:6px;">Objectif quotidien ({{ energyUnitLabel }})</label>
         <input type="number" value="{{ goalInput }}" onChange="{{ onGoalInputChange }}" style="width:100%;height:46px;padding:0 14px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:15px;outline:none;margin-bottom:14px;" style-focus="border-color:#3F51B5;background:#fff;">
@@ -660,6 +688,46 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;defaultGoal&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:2000,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:500,&quot;max&quot;:6000,&quot;step&quot;:50,&quot;section&quot;:&quot;Comportement&quot;},&quot;energyUnit&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;kcal&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;kcal&quot;,&quot;kJ&quot;],&quot;section&quot;:&quot;Comportement&quot;},&quot;qtyStep&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;0.5&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;0.5&quot;,&quot;1&quot;],&quot;section&quot;:&quot;Comportement&quot;}}">
 
+async function api(method, path, body) {
+  const res = await fetch(path, {
+    method,
+    headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    credentials: 'same-origin',
+  });
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    const err = new Error((data && data.error) || `HTTP ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
+function foodFromApi(f) { return { id: f.id, name: f.name, kcal: f.kcal_per_100g }; }
+function recipeFromApi(r) {
+  return {
+    id: r.id, name: r.name, totalGrams: r.total_grams, kcalPer100g: r.kcal_per_100g, kcalTotal: r.kcal_total,
+    ingredients: (r.ingredients || []).map(i => ({ foodId: i.food_id, name: i.name, grams: i.grams, kcalPer100g: i.kcal_per_100g })),
+  };
+}
+function entryFromApi(e) {
+  return {
+    id: e.id, date: e.date, meal: e.meal, foodId: e.food_id, name: e.name,
+    unitMode: e.unit_mode, amount: e.amount, kcalTotal: e.kcal_total, ts: Number(e.ts),
+    isRecipe: e.is_recipe, recipeSnapshot: e.recipe_snapshot || null,
+  };
+}
+function entryToApi(e) {
+  return {
+    id: e.id, date: e.date, meal: e.meal, food_id: e.isRecipe ? null : e.foodId,
+    recipe_id: e.isRecipe ? e.foodId : null, name: e.name, unit_mode: e.unitMode,
+    amount: e.amount, kcal_total: e.kcalTotal, is_recipe: e.isRecipe,
+    recipe_snapshot: e.recipeSnapshot, ts: e.ts,
+  };
+}
+
 class Component extends DCLogic {
   static WEEKDAYS = ['dim.', 'lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.'];
   static MONTHS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
@@ -672,11 +740,6 @@ class Component extends DCLogic {
     { key: 'collations', label: 'Collations' },
   ];
 
-  static loadJSON(key, fallback) {
-    try { const raw = localStorage.getItem(key); return raw == null ? fallback : JSON.parse(raw); }
-    catch (e) { return fallback; }
-  }
-  static saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
   static toIso(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; }
   static fromIso(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
   static normalize(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
@@ -688,27 +751,14 @@ class Component extends DCLogic {
     this._scanDetector = null;
     this._scanRAF = null;
     const todayIso = Component.toIso(new Date());
-    let foods = Component.loadJSON('calotrack_foods', null);
-    if (!foods) {
-      const seed = (typeof window !== 'undefined' && window.__SEED_FOODS__) || [];
-      foods = seed.map(f => ({ id: f.id, name: f.name, kcal: f.kcal }));
-      if (foods.length) Component.saveJSON('calotrack_foods', foods);
-    }
-    const entries = Component.loadJSON('calotrack_entries', []);
-    const recipes = Component.loadJSON('calotrack_recipes', []).map(r => {
-      if (r.kcalPer100g != null && r.totalGrams != null) return r;
-      const totalGrams = r.ingredients.reduce((sum, i) => sum + i.grams, 0);
-      const kcalTotal = r.kcalTotal != null ? r.kcalTotal : r.ingredients.reduce((sum, i) => sum + (i.kcalPer100g * i.grams / 100), 0);
-      const kcalPer100g = totalGrams > 0 ? Math.round(kcalTotal / totalGrams * 100) : 0;
-      return { ...r, totalGrams, kcalPer100g, kcalTotal: Math.round(kcalTotal) };
-    });
-    const defaultGoal = (props && props.defaultGoal) || 2000;
-    const goal = Component.loadJSON('calotrack_goal', defaultGoal);
+    const goal = (props && props.defaultGoal) || 2000;
 
     this.state = {
+      booting: true, showAuth: false, currentUser: null,
+      authView: 'login', authEmail: '', authPassword: '', authError: '', authLoading: false,
       tab: 'journal',
       dateIso: todayIso,
-      foods, entries, goal, recipes,
+      foods: [], entries: [], goal, recipes: [],
       showRecipeBuilder: false, editingRecipeId: null,
       recipeBuilderName: '', recipeBuilderIngredients: [],
       recipeIngSearchQuery: '', expandedEntryId: null,
@@ -739,19 +789,68 @@ class Component extends DCLogic {
   }
 
   componentDidMount() {
-    if (this.state.foods.length === 0 && window.__SEED_FOODS__ && window.__SEED_FOODS__.length) {
-      const seeded = window.__SEED_FOODS__.map(f => ({ id: f.id, name: f.name, kcal: f.kcal }));
-      Component.saveJSON('calotrack_foods', seeded);
-      this.setState({ foods: seeded });
-    }
     this._onResize = () => {
       const isDesktop = window.innerWidth >= 1024;
       if (isDesktop !== this.state.isDesktop) this.setState({ isDesktop });
     };
     window.addEventListener('resize', this._onResize);
+    this.boot();
   }
 
   componentWillUnmount() { this.stopCamera(); window.removeEventListener('resize', this._onResize); }
+
+  async boot() {
+    try {
+      const me = await api('GET', '/api/me');
+      this.setState({ currentUser: me, showAuth: false });
+      await this.loadAllData();
+    } catch (err) {
+      this.setState({ showAuth: true });
+    } finally {
+      this.setState({ booting: false });
+    }
+  }
+
+  async loadAllData() {
+    const [settings, foods, recipes, entries] = await Promise.all([
+      api('GET', '/api/me/settings'),
+      api('GET', '/api/foods'),
+      api('GET', '/api/recipes'),
+      api('GET', '/api/entries'),
+    ]);
+    const goal = settings.goal;
+    this.setState({
+      goal, goalInput: String(this.formatEnergyRaw(goal)),
+      foods: foods.map(foodFromApi),
+      recipes: recipes.map(recipeFromApi),
+      entries: entries.map(entryFromApi),
+    });
+  }
+
+  onAuthEmailChange(e) { this.setState({ authEmail: e.target.value, authError: '' }); }
+  onAuthPasswordChange(e) { this.setState({ authPassword: e.target.value, authError: '' }); }
+  toggleAuthMode() { this.setState(s => ({ authView: s.authView === 'login' ? 'signup' : 'login', authError: '' })); }
+  async submitAuth() {
+    const { authView, authEmail, authPassword } = this.state;
+    if (!authEmail.trim() || !authPassword) { this.setState({ authError: 'Email et mot de passe requis.' }); return; }
+    this.setState({ authLoading: true, authError: '' });
+    try {
+      const me = await api('POST', `/api/auth/${authView === 'login' ? 'login' : 'signup'}`, {
+        email: authEmail.trim(), password: authPassword,
+      });
+      this.setState({ currentUser: me, showAuth: false, authLoading: false, authEmail: '', authPassword: '' });
+      await this.loadAllData();
+    } catch (err) {
+      this.setState({ authLoading: false, authError: err.status === 401 ? 'Email ou mot de passe incorrect.' : (err.status === 409 ? 'Cet email a déjà un compte.' : 'Erreur, réessayez.') });
+    }
+  }
+  async logout() {
+    try { await api('POST', '/api/auth/logout'); } catch (e) {}
+    this.setState({
+      currentUser: null, showAuth: true, foods: [], entries: [], recipes: [],
+      authView: 'login', authEmail: '', authPassword: '',
+    });
+  }
 
   get unit() { return this.props.energyUnit || 'kcal'; }
   get step() { return parseFloat(this.props.qtyStep || '0.5') || 0.5; }
@@ -762,11 +861,6 @@ class Component extends DCLogic {
     return Math.round(kcalVal);
   }
   formatEnergyDisplay(kcalVal) { return this.formatEnergyRaw(kcalVal).toLocaleString('fr-FR') + ' ' + this.unit; }
-
-  persistFoods(foods) { Component.saveJSON('calotrack_foods', foods); }
-  persistEntries(entries) { Component.saveJSON('calotrack_entries', entries); }
-  persistGoal(goal) { Component.saveJSON('calotrack_goal', goal); }
-  persistRecipes(recipes) { Component.saveJSON('calotrack_recipes', recipes); }
 
   findFoodOrRecipe(id) {
     const f = this.state.foods.find(x => x.id === id);
@@ -805,7 +899,7 @@ class Component extends DCLogic {
   cancelDuplicate() { this.setState({ duplicatingMeal: null }); }
   onDupDateChange(e) { this.setState({ dupTargetDate: e.target.value }); }
   selectDupMeal(key) { this.setState({ dupTargetMeal: key }); }
-  confirmDuplicate() {
+  async confirmDuplicate() {
     const s = this.state;
     if (!s.duplicatingMeal || !s.dupTargetMeal || !s.dupTargetDate) return;
     const source = s.entries.filter(e => e.date === s.dateIso && e.meal === s.duplicatingMeal);
@@ -816,9 +910,9 @@ class Component extends DCLogic {
       unitMode: e.unitMode, amount: e.amount, kcalTotal: e.kcalTotal, ts: Date.now() + i,
       isRecipe: e.isRecipe, recipeSnapshot: e.recipeSnapshot,
     }));
-    const entries = [...s.entries, ...copies];
-    this.persistEntries(entries);
-    this.setState({ entries, duplicatingMeal: null });
+    this.setState({ duplicatingMeal: null });
+    await Promise.all(copies.map(c => api('POST', '/api/entries', entryToApi(c))));
+    this.setState({ entries: [...this.state.entries, ...copies] });
   }
   cancelAddMeal() { this.setState({ addingMeal: null, selectedFoodId: null }); }
   selectFood(id) { this.setState({ selectedFoodId: id }); }
@@ -892,13 +986,13 @@ class Component extends DCLogic {
       })
       .catch(() => { this.setState({ scanStatus: 'not-found', scanErrorMsg: 'Impossible de contacter la base de produits.' }); });
   }
-  confirmScannedFood() {
+  async confirmScannedFood() {
     const f = this.state.scanFoundFood;
     if (!f) return;
-    const food = { id: 'b' + Date.now(), name: f.name, kcal: f.kcal, barcode: f.barcode };
-    const foods = [...this.state.foods, food];
-    this.persistFoods(foods);
-    this.setState({ foods, scanning: false, scanStatus: 'idle', scanFoundFood: null });
+    this.setState({ scanning: false, scanStatus: 'idle', scanFoundFood: null });
+    const created = await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal });
+    const food = foodFromApi(created);
+    this.setState({ foods: [...this.state.foods, food] });
     this.selectFood(food.id);
   }
   cancelScanFound() {
@@ -907,7 +1001,7 @@ class Component extends DCLogic {
     else this.setState({ scanStatus: 'no-camera' });
   }
 
-  confirmAdd() {
+  async confirmAdd() {
     const food = this.findFoodOrRecipe(this.state.selectedFoodId);
     if (!food || !this.state.addingMeal) return;
     const kcalTotal = this.state.unitMode === 'g'
@@ -920,15 +1014,14 @@ class Component extends DCLogic {
       isRecipe: !!food.isRecipe,
       recipeSnapshot: food.isRecipe ? { servings: food.servings, ingredients: food.ingredients } : null,
     };
-    const entries = [...this.state.entries, entry];
-    this.persistEntries(entries);
-    this.setState({ entries, addingMeal: null, selectedFoodId: null, searchQuery: '' });
+    this.setState({ addingMeal: null, selectedFoodId: null, searchQuery: '' });
+    await api('POST', '/api/entries', entryToApi(entry));
+    this.setState({ entries: [...this.state.entries, entry] });
   }
 
-  deleteEntry(id) {
-    const entries = this.state.entries.filter(e => e.id !== id);
-    this.persistEntries(entries);
-    this.setState({ entries });
+  async deleteEntry(id) {
+    this.setState({ entries: this.state.entries.filter(e => e.id !== id) });
+    await api('DELETE', `/api/entries/${id}`);
   }
 
   entryBaseKcal(entry) {
@@ -952,18 +1045,17 @@ class Component extends DCLogic {
       : { editEntryAmount: Math.max(this.step, Math.round((s.editEntryAmount - this.step) * 100) / 100) });
   }
   onEditEntryAmountChange(e) { this.setState({ editEntryAmount: Math.max(0, parseFloat(e.target.value) || 0) }); }
-  saveEditEntry() {
+  async saveEditEntry() {
     const entry = this.state.entries.find(e => e.id === this.state.editingEntryId);
     if (!entry) return;
     const base = this.entryBaseKcal(entry);
     const kcalTotal = this.state.editEntryUnitMode === 'g'
       ? Math.round(base * (this.state.editEntryAmount / 100))
       : Math.round(base * this.state.editEntryAmount);
-    const entries = this.state.entries.map(e => e.id === entry.id
-      ? { ...e, unitMode: this.state.editEntryUnitMode, amount: this.state.editEntryAmount, kcalTotal }
-      : e);
-    this.persistEntries(entries);
+    const unitMode = this.state.editEntryUnitMode, amount = this.state.editEntryAmount;
+    const entries = this.state.entries.map(e => e.id === entry.id ? { ...e, unitMode, amount, kcalTotal } : e);
     this.setState({ entries, editingEntryId: null });
+    await api('PATCH', `/api/entries/${entry.id}`, { unit_mode: unitMode, amount, kcal_total: kcalTotal });
   }
 
   onSearchChange(e) { this.setState({ searchQuery: e.target.value }); }
@@ -974,17 +1066,14 @@ class Component extends DCLogic {
   onNewFoodNameChange(e) { this.setState({ newFoodName: e.target.value }); }
   onNewFoodKcalChange(e) { this.setState({ newFoodKcal: e.target.value }); }
   onNewFoodBarcodeChange(e) { this.setState({ newFoodBarcode: e.target.value.replace(/[^0-9]/g, '') }); }
-  saveNewFood() {
+  async saveNewFood() {
     const name = this.state.newFoodName.trim();
     const val = parseFloat(this.state.newFoodKcal);
     if (!name || isNaN(val) || val < 0) return;
-    const kcal = this.unit === 'kJ' ? val / 4.184 : val;
-    const food = { id: 'c' + Date.now(), name, kcal: Math.round(kcal) };
-    const barcode = this.state.newFoodBarcode.trim();
-    if (barcode) food.barcode = barcode;
-    const foods = [...this.state.foods, food];
-    this.persistFoods(foods);
-    this.setState({ foods, showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '' });
+    const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
+    this.setState({ showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '' });
+    const created = await api('POST', '/api/foods', { name, kcal_per_100g: kcal });
+    this.setState({ foods: [...this.state.foods, foodFromApi(created)] });
   }
 
   startEditFood(food) { this.setState({ editingFoodId: food.id, editName: food.name, editKcal: String(this.formatEnergyRaw(food.kcal)), editBarcode: food.barcode || '' }); }
@@ -992,26 +1081,31 @@ class Component extends DCLogic {
   onEditNameChange(e) { this.setState({ editName: e.target.value }); }
   onEditKcalChange(e) { this.setState({ editKcal: e.target.value }); }
   onEditBarcodeChange(e) { this.setState({ editBarcode: e.target.value.replace(/[^0-9]/g, '') }); }
-  saveEditFood() {
+  async saveEditFood() {
+    const id = this.state.editingFoodId;
     const name = this.state.editName.trim();
     const val = parseFloat(this.state.editKcal);
     if (!name || isNaN(val) || val < 0) return;
-    const kcal = this.unit === 'kJ' ? val / 4.184 : val;
-    const barcode = this.state.editBarcode.trim();
-    const foods = this.state.foods.map(f => {
-      if (f.id !== this.state.editingFoodId) return f;
-      const next = { ...f, name, kcal: Math.round(kcal) };
-      if (barcode) next.barcode = barcode; else delete next.barcode;
-      return next;
-    });
-    this.persistFoods(foods);
-    this.setState({ foods, editingFoodId: null });
+    const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
+    const previous = this.state.foods;
+    this.setState({ foods: previous.map(f => f.id === id ? { ...f, name, kcal } : f), editingFoodId: null });
+    try {
+      await api('PATCH', `/api/foods/${id}`, { name, kcal_per_100g: kcal });
+    } catch (err) {
+      this.setState({ foods: previous });
+      if (typeof window !== 'undefined') window.alert("Impossible de modifier cet aliment (aliment partagé de la base globale).");
+    }
   }
-  deleteFood(food) {
+  async deleteFood(food) {
     if (typeof window !== 'undefined' && !window.confirm(`Supprimer « ${food.name} » de la base ?`)) return;
-    const foods = this.state.foods.filter(f => f.id !== food.id);
-    this.persistFoods(foods);
-    this.setState({ foods });
+    const previous = this.state.foods;
+    this.setState({ foods: previous.filter(f => f.id !== food.id) });
+    try {
+      await api('DELETE', `/api/foods/${food.id}`);
+    } catch (err) {
+      this.setState({ foods: previous });
+      if (typeof window !== 'undefined') window.alert("Impossible de supprimer cet aliment (aliment partagé de la base globale).");
+    }
   }
 
   openRecipeBuilder() {
@@ -1045,46 +1139,49 @@ class Component extends DCLogic {
       recipeIngSearchQuery: '',
     });
   }
-  saveRecipe() {
+  async saveRecipe() {
     const name = this.state.recipeBuilderName.trim();
     const ingredients = this.state.recipeBuilderIngredients;
     if (!name || !ingredients.length) return;
-    const totalGrams = ingredients.reduce((sum, i) => sum + i.grams, 0);
-    const kcalTotal = ingredients.reduce((sum, i) => sum + (i.kcalPer100g * i.grams / 100), 0);
-    const kcalPer100g = totalGrams > 0 ? Math.round(kcalTotal / totalGrams * 100) : 0;
-    const id = this.state.editingRecipeId || ('r' + Date.now());
-    const recipe = { id, name, ingredients, kcalTotal: Math.round(kcalTotal), totalGrams, kcalPer100g };
-    const recipes = this.state.editingRecipeId
-      ? this.state.recipes.map(r => r.id === id ? recipe : r)
-      : [...this.state.recipes, recipe];
-    this.persistRecipes(recipes);
-    this.setState({ recipes, showRecipeBuilder: false, editingRecipeId: null });
+    const editingRecipeId = this.state.editingRecipeId;
+    this.setState({ showRecipeBuilder: false, editingRecipeId: null });
+    // Recipe editing isn't supported server-side yet: re-create on save.
+    if (editingRecipeId) {
+      await api('DELETE', `/api/recipes/${editingRecipeId}`);
+      this.setState({ recipes: this.state.recipes.filter(r => r.id !== editingRecipeId) });
+    }
+    const created = await api('POST', '/api/recipes', {
+      name,
+      ingredients: ingredients.map(i => ({ food_id: i.foodId || null, name: i.name, grams: i.grams, kcal_per_100g: i.kcalPer100g })),
+    });
+    this.setState({ recipes: [...this.state.recipes, recipeFromApi(created)] });
   }
-  deleteRecipe(recipe) {
+  async deleteRecipe(recipe) {
     if (typeof window !== 'undefined' && !window.confirm(`Supprimer la recette « ${recipe.name} » ?`)) return;
-    const recipes = this.state.recipes.filter(r => r.id !== recipe.id);
-    this.persistRecipes(recipes);
-    this.setState({ recipes });
+    this.setState({ recipes: this.state.recipes.filter(r => r.id !== recipe.id) });
+    await api('DELETE', `/api/recipes/${recipe.id}`);
   }
 
   onGoalInputChange(e) { this.setState({ goalInput: e.target.value }); }
-  saveGoal() {
+  async saveGoal() {
     const val = parseFloat(this.state.goalInput);
     if (isNaN(val) || val <= 0) { this.setState({ goalInput: String(this.formatEnergyRaw(this.state.goal)) }); return; }
     const goal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
-    this.persistGoal(goal);
     this.setState({ goal, goalInput: String(this.formatEnergyRaw(goal)) });
+    await api('PUT', '/api/me/settings', { goal });
   }
 
-  resetAllData() {
-    if (typeof window !== 'undefined' && !window.confirm('Réinitialiser toutes les données (journal, base d\'aliments, recettes, objectif) ?')) return;
-    const seed = (window.__SEED_FOODS__ || []).map(f => ({ id: f.id, name: f.name, kcal: f.kcal }));
+  async resetAllData() {
+    if (typeof window !== 'undefined' && !window.confirm('Réinitialiser toutes les données (journal, recettes, objectif) ?')) return;
     const goal = (this.props && this.props.defaultGoal) || 2000;
-    this.persistFoods(seed);
-    this.persistEntries([]);
-    this.persistGoal(goal);
-    this.persistRecipes([]);
-    this.setState({ foods: seed, entries: [], goal, goalInput: String(this.formatEnergyRaw(goal)), tab: 'journal', dateIso: Component.toIso(new Date()), addingMeal: null, recipes: [] });
+    const ownEntries = this.state.entries;
+    const ownRecipes = this.state.recipes;
+    this.setState({ entries: [], goal, goalInput: String(this.formatEnergyRaw(goal)), tab: 'journal', dateIso: Component.toIso(new Date()), addingMeal: null, recipes: [] });
+    await Promise.all([
+      api('PUT', '/api/me/settings', { goal }),
+      ...ownEntries.map(e => api('DELETE', `/api/entries/${e.id}`)),
+      ...ownRecipes.map(r => api('DELETE', `/api/recipes/${r.id}`)),
+    ]);
   }
 
   renderVals() {
@@ -1390,6 +1487,16 @@ class Component extends DCLogic {
       goalLineTop, statsBars,
       goalInput: s.goalInput, onGoalInputChange: (e) => this.onGoalInputChange(e), saveGoal: () => this.saveGoal(),
       trackedDaysCount, resetAllData: () => this.resetAllData(),
+
+      showBooting: s.booting, showAuth: !s.booting && s.showAuth, isAuthenticated: !s.booting && !s.showAuth,
+      authTitle: s.authView === 'login' ? 'Connecte-toi pour retrouver ton journal.' : 'Crée un compte pour commencer.',
+      authEmail: s.authEmail, onAuthEmailChange: (e) => this.onAuthEmailChange(e),
+      authPassword: s.authPassword, onAuthPasswordChange: (e) => this.onAuthPasswordChange(e),
+      authError: s.authError,
+      authSubmitLabel: s.authLoading ? '…' : (s.authView === 'login' ? 'Se connecter' : "Créer mon compte"),
+      authToggleLabel: s.authView === 'login' ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter',
+      submitAuth: () => this.submitAuth(), toggleAuthMode: () => this.toggleAuthMode(),
+      currentUserEmail: s.currentUser ? s.currentUser.email : '', logout: () => this.logout(),
     };
   }
 }
