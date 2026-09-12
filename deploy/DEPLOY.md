@@ -55,7 +55,19 @@ cd Kcal-El/deploy/caddy
 docker compose up -d
 ```
 
-## 5. Déployer CaloTrack
+## 5. Configurer les secrets
+
+```bash
+cd ~/Kcal-El/deploy
+cp .env.example .env
+sed -i "s/change-me-too/$(openssl rand -base64 24)/" .env
+sed -i "s/change-me/$(openssl rand -base64 24)/" .env
+cat .env   # vérifier que les deux valeurs ont bien été remplacées
+```
+
+`.env` n'est jamais commité (voir `.gitignore`).
+
+## 6. Déployer CaloTrack
 
 ```bash
 cd ~/Kcal-El/deploy
@@ -70,7 +82,7 @@ curl -I http://localhost/
 
 L'app est maintenant accessible sur `http://<IP_DU_VPS>/`.
 
-## 6. Mettre à jour après un changement de code
+## 7. Mettre à jour après un changement de code
 
 ```bash
 cd ~/Kcal-El
@@ -78,7 +90,26 @@ git pull
 docker compose -f deploy/docker-compose.yml up -d --build
 ```
 
-## 7. Ajouter un nom de domaine + HTTPS (plus tard)
+## 8. Administration de la base (Adminer)
+
+Une interface web façon Adminer tourne à côté de Postgres, mais **jamais
+exposée publiquement** — uniquement via un tunnel SSH :
+
+```bash
+ssh -L 8081:localhost:8081 debian@<IP_DU_VPS>
+```
+
+Puis ouvre `http://localhost:8081` dans ton navigateur et connecte-toi avec :
+- Système : **PostgreSQL**
+- Serveur : `postgres`
+- Utilisateur : `calotrack`
+- Mot de passe : la valeur de `POSTGRES_PASSWORD` dans `deploy/.env` sur le VPS
+- Base de données : `calotrack`
+
+Tant que le tunnel SSH n'est pas ouvert, le port 8081 n'est joignable que
+depuis le VPS lui-même (`127.0.0.1:8081:8080` dans `docker-compose.yml`).
+
+## 9. Ajouter un nom de domaine + HTTPS (plus tard)
 
 Quand un domaine pointe vers l'IP du VPS (enregistrement DNS `A`) :
 
@@ -87,7 +118,7 @@ Quand un domaine pointe vers l'IP du VPS (enregistrement DNS `A`) :
 
 Caddy obtient et renouvelle automatiquement le certificat Let's Encrypt.
 
-## 8. Héberger un futur site sur ce même VPS
+## 10. Héberger un futur site sur ce même VPS
 
 Convention à suivre pour chaque nouveau projet :
 

@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: calotrack
-      POSTGRES_PASSWORD: calotrack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
       POSTGRES_DB: calotrack
     volumes:
       - calotrack_pg_data:/var/lib/postgresql/data
@@ -19,7 +19,7 @@ services:
       dockerfile: backend/Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://calotrack:calotrack@postgres:5432/calotrack
+      DATABASE_URL: postgres://calotrack:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}@postgres:5432/calotrack
       JWT_SECRET: ${JWT_SECRET:-dev-secret-change-me}
       COOKIE_SECURE: ${COOKIE_SECURE:-false}
       PORT: 3000
@@ -30,6 +30,21 @@ services:
       web:
         aliases:
           - calotrack-api
+
+  # Interface d'admin PostgreSQL — jamais sur le réseau `web`/Caddy. Accès
+  # uniquement via tunnel SSH : ssh -L 8081:localhost:8081 <user>@<vps-ip>
+  # puis http://localhost:8081 (voir deploy/DEPLOY.md).
+  adminer:
+    image: adminer:4-standalone
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      - postgres
+    networks:
+      - internal
 
 networks:
   internal:
