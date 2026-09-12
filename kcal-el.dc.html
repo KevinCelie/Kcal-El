@@ -971,16 +971,19 @@ class Component extends DCLogic {
     const local = this.state.foods.find(f => f.barcode === code);
     if (local) { this.setState({ scanning: false, scanStatus: 'idle' }); this.selectFood(local.id); return; }
     this.setState({ scanStatus: 'looking-up', scanManualCode: code });
-    fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,nutriments`)
+    fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,nutriments,nutriments_estimated`)
       .then(r => r.json())
       .then(data => {
         const p = data && data.product;
-        const n = p && p.nutriments;
-        let kcal = null;
-        if (n) {
-          if (typeof n['energy-kcal_100g'] === 'number') kcal = n['energy-kcal_100g'];
-          else if (typeof n['energy_100g'] === 'number') kcal = n['energy_100g'] / 4.184;
-        }
+        const readKcal = (n) => {
+          if (!n) return null;
+          if (typeof n['energy-kcal_100g'] === 'number') return n['energy-kcal_100g'];
+          if (typeof n['energy_100g'] === 'number') return n['energy_100g'] / 4.184;
+          return null;
+        };
+        // Certains produits n'ont que des valeurs estimées (à partir des
+        // ingrédients) plutôt que des valeurs nutritionnelles renseignées.
+        const kcal = readKcal(p && p.nutriments) ?? readKcal(p && p.nutriments_estimated);
         if (p && p.product_name && kcal != null) this.setState({ scanStatus: 'found', scanFoundFood: { name: p.product_name, kcal: Math.round(kcal), barcode: code } });
         else this.setState({ scanStatus: 'not-found' });
       })
