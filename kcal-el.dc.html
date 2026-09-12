@@ -21,23 +21,23 @@
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#8B8B94;font-size:14px;">Chargement…</div>
 </sc-if>
 <sc-if value="{{ showAuth }}" hint-placeholder-val="{{ false }}">
-  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#F7F7FA;padding:20px;">
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#EEF2FA;padding:20px;">
     <div style="width:100%;max-width:360px;background:#FFFFFF;border-radius:20px;padding:28px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
-      <div style="font-weight:800;font-size:22px;letter-spacing:-0.01em;margin-bottom:4px;">Kcal<span style="color:#3F51B5;">-El</span></div>
+      <div style="font-weight:800;font-size:22px;letter-spacing:-0.01em;margin-bottom:4px;">Kcal<span style="color:#D6273B;">-</span><span style="color:#2C4FA3;border-bottom:2px solid #F4C430;">El</span></div>
       <div style="font-size:13px;color:#5F5F68;margin-bottom:20px;">{{ authTitle }}</div>
       <div style="margin-bottom:12px;">
         <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Email</label>
-        <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmailChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;">
+        <input type="email" value="{{ authEmail }}" onChange="{{ onAuthEmailChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
       </div>
       <div style="margin-bottom:16px;">
         <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Mot de passe</label>
-        <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPasswordChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;">
+        <input type="password" value="{{ authPassword }}" onChange="{{ onAuthPasswordChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
       </div>
       <sc-if value="{{ authError }}" hint-placeholder-val="{{ false }}">
-        <p style="color:#C62828;font-size:13px;margin:0 0 12px;">{{ authError }}</p>
+        <p style="color:#D6273B;font-size:13px;margin:0 0 12px;">{{ authError }}</p>
       </sc-if>
-      <button type="button" onClick="{{ submitAuth }}" style="width:100%;height:46px;border-radius:23px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;margin-bottom:10px;" style-hover="background:#303F9F;">{{ authSubmitLabel }}</button>
-      <button type="button" onClick="{{ toggleAuthMode }}" style="width:100%;background:transparent;border:none;color:#3F51B5;font-weight:700;font-size:13px;padding:8px 0;cursor:pointer;">{{ authToggleLabel }}</button>
+      <button type="button" onClick="{{ submitAuth }}" style="width:100%;height:46px;border-radius:23px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;margin-bottom:10px;" style-hover="background:#303F9F;">{{ authSubmitLabel }}</button>
+      <button type="button" onClick="{{ toggleAuthMode }}" style="width:100%;background:transparent;border:none;color:#2C4FA3;font-weight:700;font-size:13px;padding:8px 0;cursor:pointer;">{{ authToggleLabel }}</button>
     </div>
   </div>
 </sc-if>
@@ -46,7 +46,7 @@
 
   <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
     <div style="width:224px;flex-shrink:0;min-height:100vh;background:#FFFFFF;border-right:1px solid #EDEDF1;padding:24px 12px;position:sticky;top:0;align-self:flex-start;display:flex;flex-direction:column;gap:4px;">
-      <div style="font-weight:800;font-size:20px;letter-spacing:-0.01em;padding:0 12px;margin-bottom:24px;">Kcal<span style="color:#3F51B5;">-El</span></div>
+      <div style="font-weight:800;font-size:20px;letter-spacing:-0.01em;padding:0 12px;margin-bottom:24px;">Kcal<span style="color:#D6273B;">-</span><span style="color:#2C4FA3;border-bottom:2px solid #F4C430;">El</span></div>
       <button type="button" onClick="{{ goJournal }}" style="display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border-radius:12px;background:{{ journalPillBg }};color:{{ journalLabelColor }};border:none;cursor:pointer;font-weight:700;font-size:14px;text-align:left;">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h.01"></path><path d="M3 18h.01"></path><path d="M3 6h.01"></path><path d="M8 12h13"></path><path d="M8 18h13"></path><path d="M8 6h13"></path></svg>
         Journal
@@ -74,7 +74,7 @@
 
   <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
   <div style="padding:20px 20px 12px;flex-shrink:0;">
-    <div style="font-weight:800;font-size:20px;letter-spacing:-0.01em;">Kcal<span style="color:#3F51B5;">-El</span></div>
+    <div style="font-weight:800;font-size:20px;letter-spacing:-0.01em;">Kcal<span style="color:#D6273B;">-</span><span style="color:#2C4FA3;border-bottom:2px solid #F4C430;">El</span></div>
   </div>
   </sc-if>
 
@@ -89,7 +89,7 @@
         <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
           <button type="button" aria-label="Choisir une date" onClick="{{ toggleCalendar }}" style="font-weight:700;font-size:15px;color:#1C1B1F;display:flex;align-items:center;gap:6px;background:transparent;border:none;cursor:pointer;padding:6px 10px;border-radius:10px;" style-hover="background:#EDEDF2;">
             {{ dateLabel }}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#3F51B5;"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:#2C4FA3;"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           </button>
         </sc-if>
         <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
@@ -138,7 +138,7 @@
                 </sc-if>
               </sc-for>
             </div>
-            <button type="button" onClick="{{ goCalToday }}" style="width:100%;margin-top:10px;padding:9px;border-radius:10px;background:#F5F5F7;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#3F51B5;" style-hover="background:#EDEDF2;">Aujourd'hui</button>
+            <button type="button" onClick="{{ goCalToday }}" style="width:100%;margin-top:10px;padding:9px;border-radius:10px;background:#EEF2FA;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#2C4FA3;" style-hover="background:#EDEDF2;">Aujourd'hui</button>
           </div>
         </div>
       </sc-if>
@@ -149,7 +149,7 @@
       <div style="display:flex;flex-direction:column;align-items:center;margin:8px 0 20px;">
         <div style="position:relative;width:168px;height:168px;">
           <svg width="168" height="168" viewBox="0 0 168 168" style="transform:rotate(-90deg);">
-            <circle cx="84" cy="84" r="72" fill="none" stroke="#EAEAEF" stroke-width="14"></circle>
+            <circle cx="84" cy="84" r="72" fill="none" stroke="#E1E7F2" stroke-width="14"></circle>
             <circle cx="84" cy="84" r="72" fill="none" stroke="{{ ringColor }}" stroke-width="14" stroke-linecap="round" stroke-dasharray="452.4 452.4" stroke-dashoffset="{{ ringDashOffset }}"></circle>
           </svg>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
@@ -192,7 +192,7 @@
               </sc-if>
             </sc-for>
           </div>
-          <button type="button" onClick="{{ goCalToday }}" style="width:100%;margin-top:10px;padding:8px;border-radius:10px;background:#F5F5F7;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#3F51B5;" style-hover="background:#EDEDF2;">Aujourd'hui</button>
+          <button type="button" onClick="{{ goCalToday }}" style="width:100%;margin-top:10px;padding:8px;border-radius:10px;background:#EEF2FA;border:none;cursor:pointer;font-size:12px;font-weight:700;color:#2C4FA3;" style-hover="background:#EDEDF2;">Aujourd'hui</button>
         </div>
       </sc-if>
 
@@ -206,7 +206,7 @@
             <div style="display:flex;align-items:center;gap:6px;">
               <sc-if value="{{ section.hasEntries }}" hint-placeholder-val="{{ false }}">
                 <div style="font-size:13px;font-weight:700;color:#5F5F68;">{{ section.subtotalDisplay }}</div>
-                <button type="button" aria-label="Dupliquer ce repas" onClick="{{ section.onOpenDuplicate }}" style="width:28px;height:28px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#EFF1FB;color:#3F51B5;">
+                <button type="button" aria-label="Dupliquer ce repas" onClick="{{ section.onOpenDuplicate }}" style="width:28px;height:28px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
                 </button>
               </sc-if>
@@ -217,7 +217,7 @@
             <div style="background:#FAFAFB;border-radius:16px;padding:14px;margin-bottom:10px;">
               <div style="font-size:13px;font-weight:700;margin-bottom:10px;">Dupliquer « {{ section.label }} » vers…</div>
               <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Date</label>
-                <input type="date" value="{{ dupTargetDate }}" onChange="{{ onDupDateChange }}" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#fff;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;"></div>
+                <input type="date" value="{{ dupTargetDate }}" onChange="{{ onDupDateChange }}" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#fff;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;"></div>
               <div style="margin-bottom:12px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Repas de destination</label>
                 <div style="display:flex;flex-wrap:wrap;gap:6px;">
                   <sc-for list="{{ dupMealOptions }}" as="opt" hint-placeholder-count="4">
@@ -226,7 +226,7 @@
                 </div>
               </div>
               <div style="display:flex;gap:8px;">
-                <button type="button" onClick="{{ confirmDuplicate }}" style="flex:1;height:42px;border-radius:21px;background:#3F51B5;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Dupliquer</button>
+                <button type="button" onClick="{{ confirmDuplicate }}" style="flex:1;height:42px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Dupliquer</button>
                 <button type="button" onClick="{{ cancelDuplicate }}" style="height:42px;padding:0 16px;border-radius:21px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Annuler</button>
               </div>
             </div>
@@ -241,23 +241,23 @@
                     <div style="display:flex;align-items:center;gap:6px;">
                       <div style="font-weight:600;font-size:14px;">{{ entry.name }}</div>
                       <sc-if value="{{ entry.isRecipe }}" hint-placeholder-val="{{ false }}">
-                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#3F51B5;background:#EFF1FB;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
+                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2C4FA3;background:#E4EAF8;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
                       </sc-if>
                     </div>
                     <div style="font-size:12px;color:#8B8B94;margin-top:2px;">{{ entry.amountLabel }}</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:2px;">
                     <div style="font-weight:800;font-size:14px;margin-right:4px;">{{ entry.kcalDisplay }}</div>
-                    <button type="button" aria-label="Modifier" onClick="{{ entry.onStartEdit }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#EFF1FB;color:#3F51B5;">
+                    <button type="button" aria-label="Modifier" onClick="{{ entry.onStartEdit }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
                     </button>
-                    <button type="button" aria-label="Supprimer" onClick="{{ entry.onDelete }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#FBE7E7;color:#C62828;">
+                    <button type="button" aria-label="Supprimer" onClick="{{ entry.onDelete }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;" style-hover="background:#FBE3E5;color:#D6273B;">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                     </button>
                   </div>
                 </div>
                 <sc-if value="{{ entry.hasRecipeDetail }}" hint-placeholder-val="{{ false }}">
-                  <button type="button" onClick="{{ entry.onToggleDetail }}" style="background:transparent;border:none;color:#3F51B5;font-weight:700;font-size:12px;padding:6px 0 0;cursor:pointer;">{{ entry.detailToggleLabel }}</button>
+                  <button type="button" onClick="{{ entry.onToggleDetail }}" style="background:transparent;border:none;color:#2C4FA3;font-weight:700;font-size:12px;padding:6px 0 0;cursor:pointer;">{{ entry.detailToggleLabel }}</button>
                   <sc-if value="{{ entry.isExpanded }}" hint-placeholder-val="{{ false }}">
                     <div style="background:#FAFAFB;border-radius:12px;padding:8px 10px;margin-top:6px;">
                       <sc-for list="{{ entry.detailIngredients }}" as="ing" hint-placeholder-count="3">
@@ -281,16 +281,16 @@
                   </div>
                   </sc-if>
                   <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-                    <button type="button" aria-label="Diminuer" onClick="{{ entry.decAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#3F51B5;cursor:pointer;">−</button>
+                    <button type="button" aria-label="Diminuer" onClick="{{ entry.decAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#2C4FA3;cursor:pointer;">−</button>
                     <div style="display:flex;align-items:center;gap:6px;">
-                      <input type="number" value="{{ entry.editAmount }}" onChange="{{ entry.onAmountChange }}" style="width:66px;height:36px;text-align:center;font-weight:800;font-size:16px;border:1.5px solid #E4E4EA;border-radius:10px;padding:0 4px;" style-focus="border-color:#3F51B5;">
+                      <input type="number" value="{{ entry.editAmount }}" onChange="{{ entry.onAmountChange }}" style="width:66px;height:36px;text-align:center;font-weight:800;font-size:16px;border:1.5px solid #E4E4EA;border-radius:10px;padding:0 4px;" style-focus="border-color:#2C4FA3;">
                       <span style="font-size:12px;color:#8B8B94;font-weight:700;">{{ entry.amountUnitLabel }}</span>
                     </div>
-                    <button type="button" aria-label="Augmenter" onClick="{{ entry.incAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#3F51B5;cursor:pointer;">+</button>
+                    <button type="button" aria-label="Augmenter" onClick="{{ entry.incAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#2C4FA3;cursor:pointer;">+</button>
                     <div style="margin-left:auto;font-weight:800;font-size:16px;">{{ entry.editComputedKcalDisplay }}</div>
                   </div>
                   <div style="display:flex;gap:8px;">
-                    <button type="button" onClick="{{ entry.onSaveEdit }}" style="flex:1;height:40px;border-radius:20px;background:#3F51B5;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;">Enregistrer</button>
+                    <button type="button" onClick="{{ entry.onSaveEdit }}" style="flex:1;height:40px;border-radius:20px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;">Enregistrer</button>
                     <button type="button" onClick="{{ entry.onCancelEdit }}" style="height:40px;padding:0 16px;border-radius:20px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Annuler</button>
                   </div>
                 </div>
@@ -300,8 +300,8 @@
 
           <sc-if value="{{ section.isAdding }}" hint-placeholder-val="{{ false }}">
             <sc-if value="{{ section.showSearchList }}" hint-placeholder-val="{{ false }}">
-              <input type="text" autoFocus="{{ true }}" placeholder="Rechercher un aliment…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;color:#1C1B1F;outline:none;margin:10px 0 8px;" style-focus="border-color:#3F51B5;background:#fff;">
-              <button type="button" onClick="{{ openScan }}" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#3F51B5;font-weight:700;font-size:13px;padding:2px 0 12px;cursor:pointer;">
+              <input type="text" autoFocus="{{ true }}" placeholder="Rechercher un aliment…" value="{{ searchQuery }}" onChange="{{ onSearchChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;color:#1C1B1F;outline:none;margin:10px 0 8px;" style-focus="border-color:#2C4FA3;background:#fff;">
+              <button type="button" onClick="{{ openScan }}" style="display:flex;align-items:center;gap:6px;background:transparent;border:none;color:#2C4FA3;font-weight:700;font-size:13px;padding:2px 0 12px;cursor:pointer;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg>
                 Scanner un code-barres
               </button>
@@ -312,7 +312,7 @@
                     <span style="display:flex;align-items:center;gap:6px;min-width:0;">
                       <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ food.name }}</span>
                       <sc-if value="{{ food.isRecipe }}" hint-placeholder-val="{{ false }}">
-                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#3F51B5;background:#EFF1FB;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
+                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2C4FA3;background:#E4EAF8;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
                       </sc-if>
                       <sc-if value="{{ food.isScanned }}" hint-placeholder-val="{{ false }}">
                         <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2E7D32;background:#E8F5E9;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Scanné</span>
@@ -332,7 +332,7 @@
                     <span style="display:flex;align-items:center;gap:6px;min-width:0;">
                       <span style="font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ food.name }}</span>
                       <sc-if value="{{ food.isRecipe }}" hint-placeholder-val="{{ false }}">
-                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#3F51B5;background:#EFF1FB;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
+                        <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2C4FA3;background:#E4EAF8;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Recette</span>
                       </sc-if>
                       <sc-if value="{{ food.isScanned }}" hint-placeholder-val="{{ false }}">
                         <span style="flex-shrink:0;font-size:10px;font-weight:700;color:#2E7D32;background:#E8F5E9;padding:2px 7px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;">Scanné</span>
@@ -345,7 +345,7 @@
               <sc-if value="{{ showSearchPrompt }}" hint-placeholder-val="{{ true }}">
                 <p style="color:#8B8B94;font-size:13px;">Tapez pour rechercher parmi {{ totalFoodsCount }} aliments.</p>
               </sc-if>
-              <button type="button" onClick="{{ cancelAddMeal }}" style="background:transparent;color:#3F51B5;border:none;font-weight:700;font-size:14px;padding:8px 0;cursor:pointer;">Annuler</button>
+              <button type="button" onClick="{{ cancelAddMeal }}" style="background:transparent;color:#2C4FA3;border:none;font-weight:700;font-size:14px;padding:8px 0;cursor:pointer;">Annuler</button>
             </sc-if>
             <sc-if value="{{ showQtyForm }}" hint-placeholder-val="{{ false }}">
               <div style="background:#FAFAFB;border-radius:16px;padding:14px;margin-top:10px;">
@@ -359,23 +359,23 @@
                 </div>
                 </sc-if>
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-                  <button type="button" aria-label="Diminuer" onClick="{{ decAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#3F51B5;cursor:pointer;">−</button>
+                  <button type="button" aria-label="Diminuer" onClick="{{ decAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#2C4FA3;cursor:pointer;">−</button>
                   <div style="display:flex;align-items:center;gap:6px;">
-                    <input type="number" value="{{ amount }}" onChange="{{ onAmountChange }}" style="width:66px;height:36px;text-align:center;font-weight:800;font-size:16px;border:1.5px solid #E4E4EA;border-radius:10px;padding:0 4px;" style-focus="border-color:#3F51B5;">
+                    <input type="number" value="{{ amount }}" onChange="{{ onAmountChange }}" style="width:66px;height:36px;text-align:center;font-weight:800;font-size:16px;border:1.5px solid #E4E4EA;border-radius:10px;padding:0 4px;" style-focus="border-color:#2C4FA3;">
                     <span style="font-size:12px;color:#8B8B94;font-weight:700;">{{ amountUnitLabel }}</span>
                   </div>
-                  <button type="button" aria-label="Augmenter" onClick="{{ incAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#3F51B5;cursor:pointer;">+</button>
+                  <button type="button" aria-label="Augmenter" onClick="{{ incAmount }}" style="width:36px;height:36px;border-radius:18px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:16px;color:#2C4FA3;cursor:pointer;">+</button>
                   <div style="margin-left:auto;font-weight:800;font-size:16px;">{{ computedKcalDisplay }}</div>
                 </div>
                 <div style="display:flex;gap:8px;">
-                  <button type="button" onClick="{{ confirmAdd }}" style="flex:1;height:44px;border-radius:22px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Ajouter</button>
+                  <button type="button" onClick="{{ confirmAdd }}" style="flex:1;height:44px;border-radius:22px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Ajouter</button>
                   <button type="button" onClick="{{ cancelAddMeal }}" style="height:44px;padding:0 18px;border-radius:22px;background:transparent;color:#5F5F68;font-weight:700;font-size:14px;border:none;cursor:pointer;">Annuler</button>
                 </div>
               </div>
             </sc-if>
           </sc-if>
           <sc-if value="{{ section.showAddButton }}" hint-placeholder-val="{{ true }}">
-            <button type="button" onClick="{{ section.onOpenAdd }}" style="display:flex;align-items:center;gap:8px;width:100%;padding:11px 12px;border-radius:14px;background:#EFF1FB;color:#2B3592;border:none;font-weight:700;font-size:13px;cursor:pointer;margin-top:2px;" style-hover="background:#E3E6F8;">
+            <button type="button" onClick="{{ section.onOpenAdd }}" style="display:flex;align-items:center;gap:8px;width:100%;padding:11px 12px;border-radius:14px;background:#E4EAF8;color:#1E3A6E;border:none;font-weight:700;font-size:13px;cursor:pointer;margin-top:2px;" style-hover="background:#E3E6F8;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
               Ajouter un aliment
             </button>
@@ -390,7 +390,7 @@
           <div style="width:100%;max-width:420px;max-height:88vh;overflow:auto;background:#fff;border-radius:20px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
               <div style="font-weight:700;font-size:15px;">Scanner un code-barres</div>
-              <button type="button" aria-label="Fermer" onClick="{{ closeScan }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#EFF1FB;color:#3F51B5;">
+              <button type="button" aria-label="Fermer" onClick="{{ closeScan }}" style="width:32px;height:32px;border-radius:16px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
               </button>
             </div>
@@ -409,8 +409,8 @@
             <div style="margin-top:14px;">
               <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Code-barres</label>
               <div style="display:flex;gap:8px;">
-                <input type="text" inputmode="numeric" placeholder="ex : 3017620422003" value="{{ scanManualCode }}" onChange="{{ onScanManualCodeChange }}" style="flex:1;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;">
-                <button type="button" onClick="{{ submitManualCode }}" style="height:42px;padding:0 16px;border-radius:21px;background:#3F51B5;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Rechercher</button>
+                <input type="text" inputmode="numeric" placeholder="ex : 3017620422003" value="{{ scanManualCode }}" onChange="{{ onScanManualCodeChange }}" style="flex:1;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
+                <button type="button" onClick="{{ submitManualCode }}" style="height:42px;padding:0 16px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Rechercher</button>
               </div>
             </div>
 
@@ -424,7 +424,7 @@
                 <div style="font-size:15px;font-weight:700;margin-bottom:2px;">{{ scanFoundName }}</div>
                 <div style="font-size:12px;color:#8B8B94;margin-bottom:12px;">{{ scanFoundKcalDisplay }}</div>
                 <div style="display:flex;gap:8px;">
-                  <button type="button" onClick="{{ confirmScannedFood }}" style="flex:1;height:42px;border-radius:21px;background:#3F51B5;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Ajouter et sélectionner</button>
+                  <button type="button" onClick="{{ confirmScannedFood }}" style="flex:1;height:42px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Ajouter et sélectionner</button>
                   <button type="button" onClick="{{ cancelScanFound }}" style="height:42px;padding:0 16px;border-radius:21px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Annuler</button>
                 </div>
               </div>
@@ -434,7 +434,7 @@
               <p style="font-size:13px;color:#5F5F68;margin-top:12px;">Aucun produit trouvé pour ce code. Vous pouvez l'ajouter manuellement depuis l'onglet Base.</p>
             </sc-if>
             <sc-if value="{{ scanErrorMsg }}" hint-placeholder-val="{{ false }}">
-              <p style="font-size:13px;color:#C62828;margin-top:10px;">{{ scanErrorMsg }}</p>
+              <p style="font-size:13px;color:#D6273B;margin-top:10px;">{{ scanErrorMsg }}</p>
             </sc-if>
           </div>
         </div>
@@ -444,8 +444,8 @@
 
     <div data-screen-label="Base de données">
     <sc-if value="{{ isDbTab }}" hint-placeholder-val="{{ false }}">
-      <input type="text" placeholder="Filtrer les {{ totalFoodsCount }} aliments…" value="{{ dbSearchQuery }}" onChange="{{ onDbSearchChange }}" style="width:100%;height:46px;padding:0 16px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;margin-bottom:12px;" style-focus="border-color:#3F51B5;background:#fff;">
-      <button type="button" onClick="{{ openNewFoodForm }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border-radius:23px;background:#3F51B5;color:#fff;border:none;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:16px;" style-hover="background:#303F9F;">
+      <input type="text" placeholder="Filtrer les {{ totalFoodsCount }} aliments…" value="{{ dbSearchQuery }}" onChange="{{ onDbSearchChange }}" style="width:100%;height:46px;padding:0 16px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;margin-bottom:12px;" style-focus="border-color:#2C4FA3;background:#fff;">
+      <button type="button" onClick="{{ openNewFoodForm }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border-radius:23px;background:#2C4FA3;color:#fff;border:none;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:16px;" style-hover="background:#303F9F;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
         Nouvel aliment
       </button>
@@ -454,13 +454,13 @@
         <div style="background:#FFFFFF;border-radius:20px;padding:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
           <div style="font-size:11px;font-weight:700;color:#8B8B94;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">Nouvel aliment</div>
           <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Nom</label>
-            <input type="text" value="{{ newFoodName }}" onChange="{{ onNewFoodNameChange }}" placeholder="ex : Yaourt nature" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;"></div>
+            <input type="text" value="{{ newFoodName }}" onChange="{{ onNewFoodNameChange }}" placeholder="ex : Yaourt nature" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;"></div>
           <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">{{ energyUnitLabel }} / 100 g</label>
-            <input type="number" value="{{ newFoodKcal }}" onChange="{{ onNewFoodKcalChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;"></div>
+            <input type="number" value="{{ newFoodKcal }}" onChange="{{ onNewFoodKcalChange }}" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;"></div>
           <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Code-barres (optionnel)</label>
-            <input type="text" inputmode="numeric" value="{{ newFoodBarcode }}" onChange="{{ onNewFoodBarcodeChange }}" placeholder="ex : 3017620422003" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;"></div>
+            <input type="text" inputmode="numeric" value="{{ newFoodBarcode }}" onChange="{{ onNewFoodBarcodeChange }}" placeholder="ex : 3017620422003" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;"></div>
           <div style="display:flex;gap:8px;">
-            <button type="button" onClick="{{ saveNewFood }}" disabled="{{ newFoodInvalid }}" style="flex:1;height:44px;border-radius:22px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
+            <button type="button" onClick="{{ saveNewFood }}" disabled="{{ newFoodInvalid }}" style="flex:1;height:44px;border-radius:22px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
             <button type="button" onClick="{{ cancelNewFood }}" style="height:44px;padding:0 18px;border-radius:22px;background:transparent;color:#5F5F68;font-weight:700;font-size:14px;border:none;cursor:pointer;">Annuler</button>
           </div>
         </div>
@@ -478,7 +478,7 @@
             <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">Code-barres</label>
               <input type="text" inputmode="numeric" value="{{ food.editBarcode }}" onChange="{{ food.onEditBarcodeChange }}" placeholder="optionnel" style="width:100%;height:40px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;"></div>
             <div style="display:flex;gap:8px;">
-              <button type="button" onClick="{{ food.onSaveEdit }}" style="height:38px;padding:0 16px;border-radius:19px;background:#3F51B5;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;">Enregistrer</button>
+              <button type="button" onClick="{{ food.onSaveEdit }}" style="height:38px;padding:0 16px;border-radius:19px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;">Enregistrer</button>
               <button type="button" onClick="{{ food.onCancelEdit }}" style="height:38px;padding:0 16px;border-radius:19px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Annuler</button>
             </div>
           </sc-if>
@@ -492,10 +492,10 @@
                 </sc-if>
               </div>
               <div style="display:flex;gap:2px;flex-shrink:0;">
-                <button type="button" aria-label="Modifier" onClick="{{ food.onStartEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#EFF1FB;color:#3F51B5;">
+                <button type="button" aria-label="Modifier" onClick="{{ food.onStartEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
                 </button>
-                <button type="button" aria-label="Supprimer" onClick="{{ food.onDelete }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#FBE7E7;color:#C62828;">
+                <button type="button" aria-label="Supprimer" onClick="{{ food.onDelete }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#FBE3E5;color:#D6273B;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                 </button>
               </div>
@@ -509,7 +509,7 @@
 
     <div data-screen-label="Recettes">
     <sc-if value="{{ isRecipesTab }}" hint-placeholder-val="{{ false }}">
-      <button type="button" onClick="{{ openRecipeBuilder }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border-radius:23px;background:#3F51B5;color:#fff;border:none;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:16px;" style-hover="background:#303F9F;">
+      <button type="button" onClick="{{ openRecipeBuilder }}" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;border-radius:23px;background:#2C4FA3;color:#fff;border:none;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:16px;" style-hover="background:#303F9F;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg>
         Nouvelle recette
       </button>
@@ -519,7 +519,7 @@
           <div style="font-size:11px;font-weight:700;color:#8B8B94;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:10px;">{{ recipeBuilderTitle }}</div>
 
           <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Nom de la recette</label>
-            <input type="text" value="{{ recipeBuilderName }}" onChange="{{ onRecipeNameChange }}" placeholder="ex : Salade César" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#3F51B5;background:#fff;"></div>
+            <input type="text" value="{{ recipeBuilderName }}" onChange="{{ onRecipeNameChange }}" placeholder="ex : Salade César" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;"></div>
 
           <div style="font-size:12px;font-weight:700;color:#5F5F68;margin-bottom:8px;">Ingrédients</div>
 
@@ -530,18 +530,18 @@
                   <div style="font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ ing.name }}</div>
                   <div style="font-size:11px;color:#8B8B94;margin-top:1px;">{{ ing.kcalDisplay }}</div>
                 </div>
-                <button type="button" aria-label="Diminuer" onClick="{{ ing.onDec }}" style="width:28px;height:28px;border-radius:14px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:14px;color:#3F51B5;cursor:pointer;flex-shrink:0;">−</button>
-                <input type="number" value="{{ ing.grams }}" onChange="{{ ing.onGramsChange }}" style="width:56px;height:30px;text-align:center;font-weight:700;font-size:13px;border:1.5px solid #E4E4EA;border-radius:8px;flex-shrink:0;padding:0 2px;" style-focus="border-color:#3F51B5;">
+                <button type="button" aria-label="Diminuer" onClick="{{ ing.onDec }}" style="width:28px;height:28px;border-radius:14px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:14px;color:#2C4FA3;cursor:pointer;flex-shrink:0;">−</button>
+                <input type="number" value="{{ ing.grams }}" onChange="{{ ing.onGramsChange }}" style="width:56px;height:30px;text-align:center;font-weight:700;font-size:13px;border:1.5px solid #E4E4EA;border-radius:8px;flex-shrink:0;padding:0 2px;" style-focus="border-color:#2C4FA3;">
                 <div style="font-size:11px;color:#8B8B94;flex-shrink:0;">g</div>
-                <button type="button" aria-label="Augmenter" onClick="{{ ing.onInc }}" style="width:28px;height:28px;border-radius:14px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:14px;color:#3F51B5;cursor:pointer;flex-shrink:0;">+</button>
-                <button type="button" aria-label="Retirer" onClick="{{ ing.onRemove }}" style="width:28px;height:28px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;flex-shrink:0;" style-hover="background:#FBE7E7;color:#C62828;">
+                <button type="button" aria-label="Augmenter" onClick="{{ ing.onInc }}" style="width:28px;height:28px;border-radius:14px;border:1.5px solid #E4E4EA;background:#fff;font-weight:800;font-size:14px;color:#2C4FA3;cursor:pointer;flex-shrink:0;">+</button>
+                <button type="button" aria-label="Retirer" onClick="{{ ing.onRemove }}" style="width:28px;height:28px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#B8B8C0;flex-shrink:0;" style-hover="background:#FBE3E5;color:#D6273B;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
                 </button>
               </div>
             </sc-for>
           </sc-if>
 
-          <input type="text" placeholder="Chercher un aliment à ajouter…" value="{{ recipeIngSearchQuery }}" onChange="{{ onRecipeIngSearchChange }}" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:13px;color:#1C1B1F;outline:none;margin:10px 0 4px;" style-focus="border-color:#3F51B5;background:#fff;">
+          <input type="text" placeholder="Chercher un aliment à ajouter…" value="{{ recipeIngSearchQuery }}" onChange="{{ onRecipeIngSearchChange }}" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:13px;color:#1C1B1F;outline:none;margin:10px 0 4px;" style-focus="border-color:#2C4FA3;background:#fff;">
           <sc-if value="{{ hasRecipeIngSearchResults }}" hint-placeholder-val="{{ false }}">
             <sc-for list="{{ recipeIngSearchResults }}" as="food" hint-placeholder-count="4">
               <button type="button" onClick="{{ food.onAdd }}" style="display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;padding:8px 0;border-bottom:1px solid #F0F0F3;background:transparent;border-top:none;border-left:none;border-right:none;cursor:pointer;color:#1C1B1F;">
@@ -560,7 +560,7 @@
           </div>
 
           <div style="display:flex;gap:8px;">
-            <button type="button" onClick="{{ saveRecipe }}" disabled="{{ saveRecipeDisabled }}" style="flex:1;height:44px;border-radius:22px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
+            <button type="button" onClick="{{ saveRecipe }}" disabled="{{ saveRecipeDisabled }}" style="flex:1;height:44px;border-radius:22px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
             <button type="button" onClick="{{ cancelRecipeBuilder }}" style="height:44px;padding:0 18px;border-radius:22px;background:transparent;color:#5F5F68;font-weight:700;font-size:14px;border:none;cursor:pointer;">Annuler</button>
           </div>
         </div>
@@ -575,10 +575,10 @@
                 <div style="font-size:12px;color:#8B8B94;font-weight:700;margin-top:2px;">{{ recipe.kcalPer100gDisplay }} /100 g · {{ recipe.ingredientsCountLabel }}</div>
               </div>
               <div style="display:flex;gap:2px;flex-shrink:0;">
-                <button type="button" aria-label="Modifier" onClick="{{ recipe.onEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#EFF1FB;color:#3F51B5;">
+                <button type="button" aria-label="Modifier" onClick="{{ recipe.onEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
                 </button>
-                <button type="button" aria-label="Supprimer" onClick="{{ recipe.onDelete }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#FBE7E7;color:#C62828;">
+                <button type="button" aria-label="Supprimer" onClick="{{ recipe.onDelete }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#FBE3E5;color:#D6273B;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                 </button>
               </div>
@@ -597,8 +597,8 @@
       <div style="background:#FFFFFF;border-radius:20px;padding:20px 16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);margin-bottom:16px;">
         <div style="font-size:13px;font-weight:700;color:#5F5F68;margin-bottom:16px;">7 derniers jours</div>
         <div style="position:relative;height:150px;margin-bottom:8px;">
-          <div style="position:absolute;left:0;right:0;border-top:2px dashed #3F51B5;opacity:0.5;top:{{ goalLineTop }};"></div>
-          <div style="position:absolute;right:0;top:{{ goalLineTop }};transform:translateY(-16px);font-size:10px;color:#3F51B5;font-weight:700;text-transform:uppercase;">Objectif</div>
+          <div style="position:absolute;left:0;right:0;border-top:2px dashed #2C4FA3;opacity:0.5;top:{{ goalLineTop }};"></div>
+          <div style="position:absolute;right:0;top:{{ goalLineTop }};transform:translateY(-16px);font-size:10px;color:#2C4FA3;font-weight:700;text-transform:uppercase;">Objectif</div>
           <div style="display:flex;align-items:flex-end;gap:8px;height:100%;">
             <sc-for list="{{ statsBars }}" as="day" hint-placeholder-count="7">
               <div style="flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;">
@@ -629,12 +629,12 @@
     <sc-if value="{{ isProfilTab }}" hint-placeholder-val="{{ false }}">
       <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <span style="font-size:13px;color:#5F5F68;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ currentUserEmail }}</span>
-        <button type="button" onClick="{{ logout }}" style="flex-shrink:0;padding:9px 16px;border-radius:18px;background:#F5F5F7;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#EDEDF2;">Se déconnecter</button>
+        <button type="button" onClick="{{ logout }}" style="flex-shrink:0;padding:9px 16px;border-radius:18px;background:#EEF2FA;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#EDEDF2;">Se déconnecter</button>
       </div>
       <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
         <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:6px;">Objectif quotidien ({{ energyUnitLabel }})</label>
-        <input type="number" value="{{ goalInput }}" onChange="{{ onGoalInputChange }}" style="width:100%;height:46px;padding:0 14px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:15px;outline:none;margin-bottom:14px;" style-focus="border-color:#3F51B5;background:#fff;">
-        <button type="button" onClick="{{ saveGoal }}" style="width:100%;height:46px;border-radius:23px;background:#3F51B5;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Enregistrer l'objectif</button>
+        <input type="number" value="{{ goalInput }}" onChange="{{ onGoalInputChange }}" style="width:100%;height:46px;padding:0 14px;border-radius:14px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:15px;outline:none;margin-bottom:14px;" style-focus="border-color:#2C4FA3;background:#fff;">
+        <button type="button" onClick="{{ saveGoal }}" style="width:100%;height:46px;border-radius:23px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Enregistrer l'objectif</button>
       </div>
       <div style="background:#FFFFFF;border-radius:20px;padding:6px 18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
         <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #F0F0F3;">
@@ -646,7 +646,7 @@
           <span style="font-weight:800;font-size:14px;">{{ trackedDaysCount }}</span>
         </div>
       </div>
-      <button type="button" onClick="{{ resetAllData }}" style="width:100%;height:46px;border-radius:23px;background:#FBE7E7;color:#C62828;font-weight:700;font-size:14px;border:none;cursor:pointer;">Réinitialiser toutes les données</button>
+      <button type="button" onClick="{{ resetAllData }}" style="width:100%;height:46px;border-radius:23px;background:#FBE3E5;color:#D6273B;font-weight:700;font-size:14px;border:none;cursor:pointer;">Réinitialiser toutes les données</button>
     </sc-if>
     </div>
 
@@ -1223,11 +1223,11 @@ class Component extends DCLogic {
       const isToday = iso === todayIso;
       calCells.push({
         key: iso, isBlank: false, isDay: true, day,
-        bg: isSelected ? '#3F51B5' : (isToday ? '#EFF1FB' : 'transparent'),
-        color: isSelected ? '#FFFFFF' : (isToday ? '#3F51B5' : '#1C1B1F'),
+        bg: isSelected ? '#2C4FA3' : (isToday ? '#E4EAF8' : 'transparent'),
+        color: isSelected ? '#FFFFFF' : (isToday ? '#2C4FA3' : '#1C1B1F'),
         fontWeight: (isSelected || isToday) ? '800' : '600',
         hasEntries: loggedDatesSet.has(iso) && !isSelected,
-        dotBg: isSelected ? '#FFFFFF' : '#3F51B5',
+        dotBg: isSelected ? '#FFFFFF' : '#2C4FA3',
         onSelect: () => this.selectCalDate(iso),
       });
     }
@@ -1295,8 +1295,8 @@ class Component extends DCLogic {
           onStartEdit: () => this.startEditEntry(e), onCancelEdit: () => this.cancelEditEntry(), onSaveEdit: () => this.saveEditEntry(),
           setModeGram: () => this.setEditEntryModeGram(), setModePortion: () => this.setEditEntryModePortion(),
           decAmount: () => this.decEditEntryAmount(), incAmount: () => this.incEditEntryAmount(),
-          gramSegBg: editIsGram ? '#ffffff' : 'transparent', gramSegColor: editIsGram ? '#3F51B5' : '#8B8B94',
-          portionSegBg: !editIsGram ? '#ffffff' : 'transparent', portionSegColor: !editIsGram ? '#3F51B5' : '#8B8B94',
+          gramSegBg: editIsGram ? '#ffffff' : 'transparent', gramSegColor: editIsGram ? '#2C4FA3' : '#8B8B94',
+          portionSegBg: !editIsGram ? '#ffffff' : 'transparent', portionSegColor: !editIsGram ? '#2C4FA3' : '#8B8B94',
           editAmountLabel: isEditing ? (editIsGram ? `${s.editEntryAmount} g` : `${String(s.editEntryAmount).replace('.', ',')} portion`) : '',
           editComputedKcalDisplay: isEditing ? this.formatEnergyDisplay(editComputedKcal) : '',
           editAmount: isEditing ? s.editEntryAmount : 0,
@@ -1321,9 +1321,9 @@ class Component extends DCLogic {
       const active = s.dupTargetMeal === m.key;
       return {
         key: m.key, label: m.label, onSelect: () => this.selectDupMeal(m.key),
-        borderColor: active ? '#3F51B5' : '#E4E4EA',
-        bg: active ? '#EFF1FB' : '#fff',
-        color: active ? '#3F51B5' : '#5F5F68',
+        borderColor: active ? '#2C4FA3' : '#E4E4EA',
+        bg: active ? '#E4EAF8' : '#fff',
+        color: active ? '#2C4FA3' : '#5F5F68',
       };
     });
 
@@ -1355,7 +1355,7 @@ class Component extends DCLogic {
       const delta = total - s.goal;
       let tagBg = '#EDEDF1', tagColor = '#5F5F68', deltaLabel = '—';
       if (total > 0) {
-        if (delta > 0) { tagBg = '#FBE7E7'; tagColor = '#C62828'; deltaLabel = '+' + this.formatEnergyRaw(delta); }
+        if (delta > 0) { tagBg = '#FBE3E5'; tagColor = '#D6273B'; deltaLabel = '+' + this.formatEnergyRaw(delta); }
         else { tagBg = '#E3F3EA'; tagColor = '#2E7D5B'; deltaLabel = delta === 0 ? '0' : String(this.formatEnergyRaw(delta)); }
       }
       return {
@@ -1363,7 +1363,7 @@ class Component extends DCLogic {
         fullLabel: `${Component.WEEKDAYS[d.getDay()]} ${d.getDate()} ${Component.MONTHS[d.getMonth()]}`,
         totalDisplay: this.formatEnergyDisplay(total),
         barHeight: Math.max(3, (total / maxScale) * 100) + '%',
-        barColor: total > s.goal ? '#C62828' : '#3F51B5',
+        barColor: total > s.goal ? '#D6273B' : '#2C4FA3',
         tagBg, tagColor, deltaLabel,
       };
     });
@@ -1394,8 +1394,8 @@ class Component extends DCLogic {
 
     const isDesktop = s.isDesktop;
     const rootStyle = isDesktop
-      ? { height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'row', background: '#F5F5F7', color: '#1C1B1F' }
-      : { minHeight: '100vh', display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', background: '#F5F5F7', color: '#1C1B1F' };
+      ? { height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'row', background: '#EEF2FA', color: '#1C1B1F' }
+      : { minHeight: '100vh', display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', background: '#EEF2FA', color: '#1C1B1F' };
     const contentAreaStyle = isDesktop
       ? { flex: 1, height: '100%', minHeight: 0, padding: '28px 40px 40px', maxWidth: 1160, width: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', overflowY: s.tab === 'journal' ? 'hidden' : 'auto' }
       : { flex: 1, padding: '4px 20px 20px' };
@@ -1410,11 +1410,11 @@ class Component extends DCLogic {
       rootStyle, contentAreaStyle, journalWrapStyle, journalHeaderRowStyle, journalGridStyle, journalSummaryColStyle, journalMealsColStyle,
       isJournalTab: s.tab === 'journal', isDbTab: s.tab === 'db', isStatsTab: s.tab === 'stats', isProfilTab: s.tab === 'profil', isRecipesTab: s.tab === 'recipes',
       goJournal: () => this.setTab('journal'), goDb: () => this.setTab('db'), goStats: () => this.setTab('stats'), goProfil: () => this.setTab('profil'), goRecipes: () => this.setTab('recipes'),
-      journalPillBg: s.tab === 'journal' ? '#E8EAF9' : 'transparent', journalIconColor: s.tab === 'journal' ? '#3F51B5' : '#8B8B94', journalLabelColor: s.tab === 'journal' ? '#3F51B5' : '#8B8B94',
-      dbPillBg: s.tab === 'db' ? '#E8EAF9' : 'transparent', dbIconColor: s.tab === 'db' ? '#3F51B5' : '#8B8B94', dbLabelColor: s.tab === 'db' ? '#3F51B5' : '#8B8B94',
-      statsPillBg: s.tab === 'stats' ? '#E8EAF9' : 'transparent', statsIconColor: s.tab === 'stats' ? '#3F51B5' : '#8B8B94', statsLabelColor: s.tab === 'stats' ? '#3F51B5' : '#8B8B94',
-      profilPillBg: s.tab === 'profil' ? '#E8EAF9' : 'transparent', profilIconColor: s.tab === 'profil' ? '#3F51B5' : '#8B8B94', profilLabelColor: s.tab === 'profil' ? '#3F51B5' : '#8B8B94',
-      recipesPillBg: s.tab === 'recipes' ? '#E8EAF9' : 'transparent', recipesIconColor: s.tab === 'recipes' ? '#3F51B5' : '#8B8B94', recipesLabelColor: s.tab === 'recipes' ? '#3F51B5' : '#8B8B94',
+      journalPillBg: s.tab === 'journal' ? '#E4EAF8' : 'transparent', journalIconColor: s.tab === 'journal' ? '#2C4FA3' : '#8B8B94', journalLabelColor: s.tab === 'journal' ? '#2C4FA3' : '#8B8B94',
+      dbPillBg: s.tab === 'db' ? '#E4EAF8' : 'transparent', dbIconColor: s.tab === 'db' ? '#2C4FA3' : '#8B8B94', dbLabelColor: s.tab === 'db' ? '#2C4FA3' : '#8B8B94',
+      statsPillBg: s.tab === 'stats' ? '#E4EAF8' : 'transparent', statsIconColor: s.tab === 'stats' ? '#2C4FA3' : '#8B8B94', statsLabelColor: s.tab === 'stats' ? '#2C4FA3' : '#8B8B94',
+      profilPillBg: s.tab === 'profil' ? '#E4EAF8' : 'transparent', profilIconColor: s.tab === 'profil' ? '#2C4FA3' : '#8B8B94', profilLabelColor: s.tab === 'profil' ? '#2C4FA3' : '#8B8B94',
+      recipesPillBg: s.tab === 'recipes' ? '#E4EAF8' : 'transparent', recipesIconColor: s.tab === 'recipes' ? '#2C4FA3' : '#8B8B94', recipesLabelColor: s.tab === 'recipes' ? '#2C4FA3' : '#8B8B94',
 
       energyUnitLabel: this.unit,
       dateLabel, isToday: s.dateIso >= todayIso,
@@ -1428,8 +1428,8 @@ class Component extends DCLogic {
       goalDisplay: this.formatEnergyRaw(s.goal).toLocaleString('fr-FR') + ' ' + this.unit,
       remainingDisplay: (remaining >= 0 ? this.formatEnergyRaw(remaining) : '+' + this.formatEnergyRaw(-remaining)).toLocaleString('fr-FR'),
       remainingSub: remaining >= 0 ? 'restants' : 'dépassés',
-      remainingChipBg: overGoal ? '#FBE7E7' : '#E3F3EA', remainingChipColor: overGoal ? '#C62828' : '#2E7D5B',
-      ringColor: overGoal ? '#C62828' : '#3F51B5',
+      remainingChipBg: overGoal ? '#FBE3E5' : '#E3F3EA', remainingChipColor: overGoal ? '#D6273B' : '#2E7D5B',
+      ringColor: overGoal ? '#D6273B' : '#2C4FA3',
       ringDashOffset: CIRC * (1 - progressPct),
       mealSections,
 
@@ -1445,8 +1445,8 @@ class Component extends DCLogic {
       selectedFoodKcalDisplay: selectedFood ? this.formatEnergyDisplay(selectedFood.kcal) : '',
       selectedFoodIsRecipe, selectedFoodRefLabel, showUnitToggle: true,
       isGramMode,
-      gramSegBg: isGramMode ? '#ffffff' : 'transparent', gramSegColor: isGramMode ? '#3F51B5' : '#8B8B94', gramSegShadow: isGramMode ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-      portionSegBg: !isGramMode ? '#ffffff' : 'transparent', portionSegColor: !isGramMode ? '#3F51B5' : '#8B8B94', portionSegShadow: !isGramMode ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+      gramSegBg: isGramMode ? '#ffffff' : 'transparent', gramSegColor: isGramMode ? '#2C4FA3' : '#8B8B94', gramSegShadow: isGramMode ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+      portionSegBg: !isGramMode ? '#ffffff' : 'transparent', portionSegColor: !isGramMode ? '#2C4FA3' : '#8B8B94', portionSegShadow: !isGramMode ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
       setModeGram: () => this.setModeGram(), setModePortion: () => this.setModePortion(),
       amountLabel, computedKcalDisplay: this.formatEnergyDisplay(computedKcal),
       amount: s.amount, onAmountChange: (e) => this.onAmountChange(e), amountUnitLabel: isGramMode ? 'g' : 'portion',
