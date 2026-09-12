@@ -11,6 +11,7 @@
 <helmet>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;display=swap">
+  <script src="foods-data.js"></script>
   <style>
     *{box-sizing:border-box;}
     body{margin:0;font-family:'Manrope',sans-serif;-webkit-font-smoothing:antialiased;}
@@ -38,6 +39,9 @@
       </sc-if>
       <button type="button" onClick="{{ submitAuth }}" style="width:100%;height:46px;border-radius:23px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;margin-bottom:10px;" style-hover="background:#303F9F;">{{ authSubmitLabel }}</button>
       <button type="button" onClick="{{ toggleAuthMode }}" style="width:100%;background:transparent;border:none;color:#2C4FA3;font-weight:700;font-size:13px;padding:8px 0;cursor:pointer;">{{ authToggleLabel }}</button>
+      <div style="border-top:1px solid #EDEDF1;margin-top:14px;padding-top:14px;">
+        <button type="button" onClick="{{ enterDemoMode }}" style="width:100%;height:42px;border-radius:21px;background:transparent;border:1.5px solid #E4E4EA;color:#5F5F68;font-weight:700;font-size:13px;cursor:pointer;" style-hover="background:#F5F5F7;">Essayer sans compte (démo)</button>
+      </div>
     </div>
   </div>
 </sc-if>
@@ -627,9 +631,12 @@
 
     <div data-screen-label="Profil">
     <sc-if value="{{ isProfilTab }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ isDemoMode }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#FFF8E1;border-radius:20px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:#8A6D00;">Mode démo — rien n'est sauvegardé, tout disparaît si tu quittes ou recharges la page.</div>
+      </sc-if>
       <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);display:flex;align-items:center;justify-content:space-between;gap:12px;">
         <span style="font-size:13px;color:#5F5F68;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ currentUserEmail }}</span>
-        <button type="button" onClick="{{ logout }}" style="flex-shrink:0;padding:9px 16px;border-radius:18px;background:#EEF2FA;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#EDEDF2;">Se déconnecter</button>
+        <button type="button" onClick="{{ logout }}" style="flex-shrink:0;padding:9px 16px;border-radius:18px;background:#EEF2FA;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#EDEDF2;">{{ logoutLabel }}</button>
       </div>
       <div style="background:#FFFFFF;border-radius:20px;padding:18px;margin-bottom:16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
         <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:6px;">Objectif quotidien ({{ energyUnitLabel }})</label>
@@ -760,7 +767,7 @@ class Component extends DCLogic {
     const goal = (props && props.defaultGoal) || 2000;
 
     this.state = {
-      booting: true, showAuth: false, currentUser: null,
+      booting: true, showAuth: false, currentUser: null, demoMode: false,
       authView: 'login', authEmail: '', authPassword: '', authError: '', authLoading: false,
       tab: 'journal',
       dateIso: todayIso,
@@ -852,10 +859,24 @@ class Component extends DCLogic {
     }
   }
   async logout() {
-    try { await api('POST', '/api/auth/logout'); } catch (e) {}
+    if (!this.state.demoMode) {
+      try { await api('POST', '/api/auth/logout'); } catch (e) {}
+    }
     this.setState({
-      currentUser: null, showAuth: true, foods: [], entries: [], recipes: [],
+      currentUser: null, showAuth: true, demoMode: false, foods: [], entries: [], recipes: [],
       authView: 'login', authEmail: '', authPassword: '',
+    });
+  }
+
+  enterDemoMode() {
+    const seed = (typeof window !== 'undefined' && window.__SEED_FOODS__) || [];
+    const foods = seed.map(f => ({ id: f.id, name: f.name, kcal: f.kcal, barcode: null }));
+    const goal = (this.props && this.props.defaultGoal) || 2000;
+    this.setState({
+      demoMode: true, booting: false, showAuth: false,
+      currentUser: { email: 'Mode démo' },
+      foods, entries: [], recipes: [], goal, goalInput: String(this.formatEnergyRaw(goal)),
+      tab: 'journal', dateIso: Component.toIso(new Date()),
     });
   }
 
@@ -918,7 +939,7 @@ class Component extends DCLogic {
       isRecipe: e.isRecipe, recipeSnapshot: e.recipeSnapshot,
     }));
     this.setState({ duplicatingMeal: null });
-    await Promise.all(copies.map(c => api('POST', '/api/entries', entryToApi(c))));
+    if (!this.state.demoMode) await Promise.all(copies.map(c => api('POST', '/api/entries', entryToApi(c))));
     this.setState({ entries: [...this.state.entries, ...copies] });
   }
   cancelAddMeal() { this.setState({ addingMeal: null, selectedFoodId: null }); }
@@ -1000,8 +1021,9 @@ class Component extends DCLogic {
     const f = this.state.scanFoundFood;
     if (!f) return;
     this.setState({ scanning: false, scanStatus: 'idle', scanFoundFood: null });
-    const created = await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal, barcode: f.barcode });
-    const food = foodFromApi(created);
+    const food = this.state.demoMode
+      ? { id: 'd' + Date.now(), name: f.name, kcal: f.kcal, barcode: f.barcode }
+      : foodFromApi(await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal, barcode: f.barcode }));
     this.setState({ foods: [...this.state.foods, food] });
     this.selectFood(food.id);
   }
@@ -1025,13 +1047,13 @@ class Component extends DCLogic {
       recipeSnapshot: food.isRecipe ? { servings: food.servings, ingredients: food.ingredients } : null,
     };
     this.setState({ addingMeal: null, selectedFoodId: null, searchQuery: '' });
-    await api('POST', '/api/entries', entryToApi(entry));
+    if (!this.state.demoMode) await api('POST', '/api/entries', entryToApi(entry));
     this.setState({ entries: [...this.state.entries, entry] });
   }
 
   async deleteEntry(id) {
     this.setState({ entries: this.state.entries.filter(e => e.id !== id) });
-    await api('DELETE', `/api/entries/${id}`);
+    if (!this.state.demoMode) await api('DELETE', `/api/entries/${id}`);
   }
 
   entryBaseKcal(entry) {
@@ -1065,7 +1087,7 @@ class Component extends DCLogic {
     const unitMode = this.state.editEntryUnitMode, amount = this.state.editEntryAmount;
     const entries = this.state.entries.map(e => e.id === entry.id ? { ...e, unitMode, amount, kcalTotal } : e);
     this.setState({ entries, editingEntryId: null });
-    await api('PATCH', `/api/entries/${entry.id}`, { unit_mode: unitMode, amount, kcal_total: kcalTotal });
+    if (!this.state.demoMode) await api('PATCH', `/api/entries/${entry.id}`, { unit_mode: unitMode, amount, kcal_total: kcalTotal });
   }
 
   onSearchChange(e) { this.setState({ searchQuery: e.target.value }); }
@@ -1083,8 +1105,10 @@ class Component extends DCLogic {
     const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
     const barcode = this.state.newFoodBarcode.trim() || null;
     this.setState({ showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '' });
-    const created = await api('POST', '/api/foods', { name, kcal_per_100g: kcal, barcode });
-    this.setState({ foods: [...this.state.foods, foodFromApi(created)] });
+    const food = this.state.demoMode
+      ? { id: 'd' + Date.now(), name, kcal, barcode }
+      : foodFromApi(await api('POST', '/api/foods', { name, kcal_per_100g: kcal, barcode }));
+    this.setState({ foods: [...this.state.foods, food] });
   }
 
   startEditFood(food) { this.setState({ editingFoodId: food.id, editName: food.name, editKcal: String(this.formatEnergyRaw(food.kcal)), editBarcode: food.barcode || '' }); }
@@ -1101,6 +1125,7 @@ class Component extends DCLogic {
     const barcode = this.state.editBarcode.trim() || null;
     const previous = this.state.foods;
     this.setState({ foods: previous.map(f => f.id === id ? { ...f, name, kcal, barcode } : f), editingFoodId: null });
+    if (this.state.demoMode) return;
     try {
       await api('PATCH', `/api/foods/${id}`, { name, kcal_per_100g: kcal, barcode });
     } catch (err) {
@@ -1112,6 +1137,7 @@ class Component extends DCLogic {
     if (typeof window !== 'undefined' && !window.confirm(`Supprimer « ${food.name} » de la base ?`)) return;
     const previous = this.state.foods;
     this.setState({ foods: previous.filter(f => f.id !== food.id) });
+    if (this.state.demoMode) return;
     try {
       await api('DELETE', `/api/foods/${food.id}`);
     } catch (err) {
@@ -1157,6 +1183,17 @@ class Component extends DCLogic {
     if (!name || !ingredients.length) return;
     const editingRecipeId = this.state.editingRecipeId;
     this.setState({ showRecipeBuilder: false, editingRecipeId: null });
+    if (this.state.demoMode) {
+      const totalGrams = ingredients.reduce((sum, i) => sum + i.grams, 0);
+      const kcalTotal = ingredients.reduce((sum, i) => sum + (i.kcalPer100g * i.grams / 100), 0);
+      const kcalPer100g = totalGrams > 0 ? Math.round(kcalTotal / totalGrams * 100) : 0;
+      const recipe = { id: editingRecipeId || ('d' + Date.now()), name, ingredients, totalGrams, kcalTotal: Math.round(kcalTotal), kcalPer100g };
+      const recipes = editingRecipeId
+        ? this.state.recipes.map(r => r.id === editingRecipeId ? recipe : r)
+        : [...this.state.recipes, recipe];
+      this.setState({ recipes });
+      return;
+    }
     // Recipe editing isn't supported server-side yet: re-create on save.
     if (editingRecipeId) {
       await api('DELETE', `/api/recipes/${editingRecipeId}`);
@@ -1171,7 +1208,7 @@ class Component extends DCLogic {
   async deleteRecipe(recipe) {
     if (typeof window !== 'undefined' && !window.confirm(`Supprimer la recette « ${recipe.name} » ?`)) return;
     this.setState({ recipes: this.state.recipes.filter(r => r.id !== recipe.id) });
-    await api('DELETE', `/api/recipes/${recipe.id}`);
+    if (!this.state.demoMode) await api('DELETE', `/api/recipes/${recipe.id}`);
   }
 
   onGoalInputChange(e) { this.setState({ goalInput: e.target.value }); }
@@ -1180,7 +1217,7 @@ class Component extends DCLogic {
     if (isNaN(val) || val <= 0) { this.setState({ goalInput: String(this.formatEnergyRaw(this.state.goal)) }); return; }
     const goal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
     this.setState({ goal, goalInput: String(this.formatEnergyRaw(goal)) });
-    await api('PUT', '/api/me/settings', { goal });
+    if (!this.state.demoMode) await api('PUT', '/api/me/settings', { goal });
   }
 
   async resetAllData() {
@@ -1189,6 +1226,7 @@ class Component extends DCLogic {
     const ownEntries = this.state.entries;
     const ownRecipes = this.state.recipes;
     this.setState({ entries: [], goal, goalInput: String(this.formatEnergyRaw(goal)), tab: 'journal', dateIso: Component.toIso(new Date()), addingMeal: null, recipes: [] });
+    if (this.state.demoMode) return;
     await Promise.all([
       api('PUT', '/api/me/settings', { goal }),
       ...ownEntries.map(e => api('DELETE', `/api/entries/${e.id}`)),
@@ -1508,7 +1546,9 @@ class Component extends DCLogic {
       authSubmitLabel: s.authLoading ? '…' : (s.authView === 'login' ? 'Se connecter' : "Créer mon compte"),
       authToggleLabel: s.authView === 'login' ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter',
       submitAuth: () => this.submitAuth(), toggleAuthMode: () => this.toggleAuthMode(),
+      enterDemoMode: () => this.enterDemoMode(), isDemoMode: s.demoMode,
       currentUserEmail: s.currentUser ? s.currentUser.email : '', logout: () => this.logout(),
+      logoutLabel: s.demoMode ? 'Quitter la démo' : 'Se déconnecter',
     };
   }
 }
