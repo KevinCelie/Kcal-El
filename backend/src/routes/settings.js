@@ -23,4 +23,39 @@ export default async function settingsRoutes(fastify) {
     );
     return rows[0];
   });
+
+  fastify.get('/api/me/goal-history', async (request) => {
+    const { rows } = await pool.query(
+      'SELECT from_date AS "from", goal FROM goal_history WHERE user_id = $1 ORDER BY from_date ASC',
+      [request.user.sub]
+    );
+    return rows;
+  });
+
+  fastify.put('/api/me/goal-history', async (request, reply) => {
+    const { history } = request.body || {};
+    const valid = Array.isArray(history) && history.every(
+      (x) => x && /^\d{4}-\d{2}-\d{2}$/.test(x.from) && Number.isInteger(x.goal) && x.goal > 0
+    );
+    if (!valid) return reply.code(400).send({ error: 'history must be an array of {from: YYYY-MM-DD, goal: positive integer}' });
+
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM goal_history WHERE user_id = $1', [request.user.sub]);
+      for (const x of history) {
+        await client.query(
+          'INSERT INTO goal_history (user_id, from_date, goal) VALUES ($1, $2, $3) ON CONFLICT (user_id, from_date) DO UPDATE SET goal = EXCLUDED.goal',
+          [request.user.sub, x.from, x.goal]
+        );
+      }
+      await client.query('COMMIT');
+      return { ok: true };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    } finally {
+      client.release();
+    }
+  });
 }
