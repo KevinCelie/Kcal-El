@@ -907,7 +907,8 @@ class Component extends DCLogic {
       this.setState({ currentUser: me, showAuth: false, authLoading: false, authEmail: '', authPassword: '' });
       await this.loadAllData();
     } catch (err) {
-      this.setState({ authLoading: false, authError: err.status === 401 ? 'Pseudo ou mot de passe incorrect.' : (err.status === 409 ? 'Ce pseudo est déjà pris.' : 'Erreur, réessayez.') });
+      const msg = err.status === 401 ? 'Pseudo ou mot de passe incorrect.' : (err.status === 409 ? 'Ce pseudo est déjà pris.' : (err.status === 400 ? (err.message || 'Erreur, réessayez.') : 'Erreur, réessayez.'));
+      this.setState({ authLoading: false, authError: msg });
     }
   }
   async logout() {

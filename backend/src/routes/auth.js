@@ -12,8 +12,8 @@ const COOKIE_OPTS = {
 export default async function authRoutes(fastify) {
   fastify.post('/api/auth/signup', async (request, reply) => {
     const { email, password } = request.body || {};
-    if (!email || !password || password.length < 8) {
-      return reply.code(400).send({ error: 'email and password (min 8 chars) required' });
+    if (!email || !password) {
+      return reply.code(400).send({ error: 'email and password required' });
     }
     const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email.toLowerCase()]);
     if (existing.rows.length) return reply.code(409).send({ error: 'email already registered' });
