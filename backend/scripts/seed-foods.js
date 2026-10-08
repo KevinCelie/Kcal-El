@@ -20,10 +20,10 @@ async function main() {
     await client.query('BEGIN');
     for (const f of foods) {
       await client.query(
-        `INSERT INTO foods (id, user_id, name, kcal_per_100g)
-         VALUES ($1, NULL, $2, $3)
-         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, kcal_per_100g = EXCLUDED.kcal_per_100g`,
-        [f.id, f.name, f.kcal]
+        `INSERT INTO foods (id, user_id, name, kcal_per_100g, portion_grams)
+         VALUES ($1, NULL, $2, $3, $4)
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, kcal_per_100g = EXCLUDED.kcal_per_100g, portion_grams = EXCLUDED.portion_grams`,
+        [f.id, f.name, f.kcal, f.portionGrams || 100]
       );
     }
     await client.query('COMMIT');
