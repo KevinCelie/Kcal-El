@@ -12,7 +12,8 @@ import entriesRoutes from './routes/entries.js';
 import settingsRoutes from './routes/settings.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.join(__dirname, '..', '..');
+// Seul le dossier public/ est servi : jamais le code du backend.
+const publicRoot = path.join(__dirname, '..', '..', 'public');
 
 const fastify = Fastify({ logger: true });
 
@@ -29,8 +30,15 @@ await fastify.register(entriesRoutes);
 await fastify.register(settingsRoutes);
 
 await fastify.register(fastifyStatic, {
-  root: projectRoot,
+  root: publicRoot,
   index: ['kcal-el.dc.html'],
+  // La page, le service worker et le manifeste doivent toujours être
+  // revalidés pour que les mises à jour de l'app arrivent sans délai.
+  setHeaders(reply, filePath) {
+    if (/(\.html|sw\.js|\.webmanifest)$/.test(filePath)) {
+      reply.header('Cache-Control', 'no-cache');
+    }
+  },
 });
 
 const port = Number(process.env.PORT) || 3000;

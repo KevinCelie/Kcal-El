@@ -170,3 +170,18 @@ Convention à suivre pour chaque nouveau projet :
 3. `docker compose restart` dans `deploy/caddy/`.
 
 Le même Caddy, le même VPS, chaque site dans son propre conteneur/réseau interne.
+
+## 11. PWA (installation sur l'écran d'accueil)
+
+L'app est installable (Android/Chrome : « Installer l'application » ; iOS/Safari :
+Partager → « Sur l'écran d'accueil »). Fichiers dans `public/` :
+
+- `manifest.webmanifest` : nom, couleurs, icônes.
+- `sw.js` : service worker. Il met en cache l'interface (page, scripts, polices,
+  React/Babel depuis unpkg) pour l'affichage hors-ligne, mais **jamais** `/api/*`.
+  Les données nécessitent donc une connexion.
+- `icons/` : icônes 192/512, maskable et `apple-touch-icon`.
+
+Seul `public/` est servi par Fastify (le code du backend n'est pas exposé).
+Après avoir modifié un fichier statique mis en cache, incrémenter `VERSION`
+dans `public/sw.js` pour forcer le renouvellement du cache.

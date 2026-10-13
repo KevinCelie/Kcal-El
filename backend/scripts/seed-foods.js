@@ -6,7 +6,7 @@ import { pool, runMigrations } from '../src/db.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function loadSeedFoods() {
-  const src = readFileSync(path.join(__dirname, '..', '..', 'foods-data.js'), 'utf8');
+  const src = readFileSync(path.join(__dirname, '..', '..', 'public', 'foods-data.js'), 'utf8');
   const match = src.match(/window\.__SEED_FOODS__\s*=\s*(\[[\s\S]*\]);/);
   if (!match) throw new Error('Could not find __SEED_FOODS__ array in foods-data.js');
   return JSON.parse(match[1]);
