@@ -82,6 +82,20 @@ curl -I http://localhost/
 
 L'app est maintenant accessible sur `http://<IP_DU_VPS>/`.
 
+### Base d'aliments initiale (nouveau serveur uniquement)
+
+La base de données est la source de vérité : les aliments et recettes sont
+**communs à tous les utilisateurs** et ne sont plus réimportés au démarrage.
+Sur un serveur neuf, la base est vide : charger une seule fois les aliments
+d'origine (`public/foods-data.js`) avec
+
+```bash
+cd ~/Kcal-El/deploy
+docker compose exec api npm run seed
+```
+
+Cette commande n'insère que les aliments manquants et n'écrase jamais rien.
+
 ## 7. Mettre à jour après un changement de code
 
 Automatique désormais (voir section suivante). En manuel si besoin :
@@ -185,3 +199,18 @@ Partager → « Sur l'écran d'accueil »). Fichiers dans `public/` :
 Seul `public/` est servi par Fastify (le code du backend n'est pas exposé).
 Après avoir modifié un fichier statique mis en cache, incrémenter `VERSION`
 dans `public/sw.js` pour forcer le renouvellement du cache.
+
+## 12. Sauvegarde de la base
+
+Avant toute migration importante, et régulièrement :
+
+```bash
+cd ~/Kcal-El/deploy
+docker compose exec -T postgres pg_dump -U kcal_el kcal_el | gzip > ~/kcal_el_$(date +%F).sql.gz
+```
+
+Restauration (⚠ remplace le contenu actuel) :
+
+```bash
+gunzip -c ~/kcal_el_AAAA-MM-JJ.sql.gz | docker compose exec -T postgres psql -U kcal_el -d kcal_el
+```
