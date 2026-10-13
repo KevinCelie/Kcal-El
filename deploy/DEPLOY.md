@@ -135,23 +135,35 @@ Puis ouvre `http://localhost:8081` dans ton navigateur et connecte-toi avec :
 Tant que le tunnel SSH n'est pas ouvert, le port 8081 n'est joignable que
 depuis le VPS lui-même (`127.0.0.1:8081:8080` dans `docker-compose.yml`).
 
-## 9. Ajouter un nom de domaine + HTTPS (plus tard)
+## 9. Nom de domaine + HTTPS
 
-Quand un domaine pointe vers l'IP du VPS (enregistrement DNS `A`) :
+Kcal-El est servi sur `https://kcal-el.kevincelie.fr`.
 
-1. Édite `~/Kcal-El/deploy/caddy/Caddyfile` : remplace `:80` par ton domaine, ex. `kcal-el.mondomaine.fr`.
-2. `cd ~/Kcal-El/deploy/caddy && docker compose restart`
+1. Chez OVH (zone DNS) : entrée `A` `kcal-el` → IP du VPS.
+2. `deploy/caddy/Caddyfile` contient le bloc `kcal-el.kevincelie.fr { ... }` :
+   Caddy obtient et renouvelle seul le certificat Let's Encrypt.
+3. Sur le VPS, après `git pull` :
+   ```bash
+   cd ~/Kcal-El/deploy/caddy && docker compose restart
+   docker logs --tail 30 caddy-caddy-1   # vérifier l'obtention du certificat
+   ```
+4. Dans `~/Kcal-El/deploy/.env`, mettre `COOKIE_SECURE=true` (et un vrai
+   `JWT_SECRET`, pas la valeur de dev), puis :
+   ```bash
+   cd ~/Kcal-El/deploy && docker compose up -d
+   ```
 
-Caddy obtient et renouvelle automatiquement le certificat Let's Encrypt.
+Le déploiement CI (section 7bis) ne redémarre pas Caddy : un changement du
+Caddyfile demande le `docker compose restart` ci-dessus.
 
 ## 10. Héberger un futur site sur ce même VPS
 
 Convention à suivre pour chaque nouveau projet :
 
 1. Un dossier dédié (ex. `~/mon-autre-site/`) avec son propre `docker-compose.yml`, qui **rejoint le réseau externe `web`** avec un alias unique pour son service API (ex. `mon-site-api`), comme `deploy/docker-compose.yml` le fait pour `kcal-el-api`.
-2. Un bloc supplémentaire dans `~/Kcal-El/deploy/caddy/Caddyfile` :
+2. Chez OVH, une entrée `A` `mon-site` → IP du VPS, puis un bloc supplémentaire dans `~/Kcal-El/deploy/caddy/Caddyfile` :
    ```
-   mon-site.mondomaine.fr {
+   mon-site.kevincelie.fr {
        reverse_proxy mon-site-api:3000
    }
    ```
