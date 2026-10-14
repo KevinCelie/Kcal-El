@@ -5,20 +5,19 @@ export default async function foodsRoutes(fastify) {
   fastify.addHook('preHandler', authenticate);
 
   fastify.get('/api/foods', async (request) => {
+    // Les aliments sont communs à tous les utilisateurs.
     const q = (request.query.q || '').trim();
-    const userId = request.user.sub;
     if (q) {
       const { rows } = await pool.query(
         `SELECT id, name, kcal_per_100g, barcode, portion_grams FROM foods
-         WHERE (user_id IS NULL OR user_id = $1) AND name ILIKE $2
+         WHERE name ILIKE $1
          ORDER BY name ASC LIMIT 50`,
-        [userId, `%${q}%`]
+        [`%${q}%`]
       );
       return rows;
     }
     const { rows } = await pool.query(
-      `SELECT id, name, kcal_per_100g, barcode, portion_grams FROM foods WHERE user_id IS NULL OR user_id = $1 ORDER BY name ASC`,
-      [userId]
+      `SELECT id, name, kcal_per_100g, barcode, portion_grams FROM foods ORDER BY name ASC`
     );
     return rows;
   });
@@ -40,16 +39,16 @@ export default async function foodsRoutes(fastify) {
     const { name, kcal_per_100g, barcode, portion_grams } = request.body || {};
     const { rows } = await pool.query(
       `UPDATE foods SET name = COALESCE($1, name), kcal_per_100g = COALESCE($2, kcal_per_100g), barcode = $3, portion_grams = COALESCE($4, portion_grams)
-       WHERE id = $5 AND user_id = $6 RETURNING id, name, kcal_per_100g, barcode, portion_grams`,
-      [name ?? null, kcal_per_100g ?? null, barcode ?? null, portion_grams ?? null, request.params.id, request.user.sub]
+       WHERE id = $5 RETURNING id, name, kcal_per_100g, barcode, portion_grams`,
+      [name ?? null, kcal_per_100g ?? null, barcode ?? null, portion_grams ?? null, request.params.id]
     );
-    if (!rows.length) return reply.code(404).send({ error: 'not found or not owned' });
+    if (!rows.length) return reply.code(404).send({ error: 'not found' });
     return rows[0];
   });
 
   fastify.delete('/api/foods/:id', async (request, reply) => {
-    const { rowCount } = await pool.query('DELETE FROM foods WHERE id = $1 AND user_id = $2', [request.params.id, request.user.sub]);
-    if (!rowCount) return reply.code(404).send({ error: 'not found or not owned' });
+    const { rowCount } = await pool.query('DELETE FROM foods WHERE id = $1', [request.params.id]);
+    if (!rowCount) return reply.code(404).send({ error: 'not found' });
     return { ok: true };
   });
 }

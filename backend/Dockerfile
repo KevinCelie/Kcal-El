@@ -9,4 +9,4 @@ COPY backend/ ./
 COPY public/ ../public/
 
 EXPOSE 3000
-CMD ["sh", "-c", "node scripts/seed-foods.js && node src/server.js"]
+CMD ["node", "src/server.js"]

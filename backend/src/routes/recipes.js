@@ -1,10 +1,11 @@
 import { pool } from '../db.js';
 import { authenticate } from '../auth.js';
 
-async function loadRecipe(userId, recipeId) {
+// Les recettes sont communes à tous les utilisateurs.
+async function loadRecipe(recipeId) {
   const { rows: recipeRows } = await pool.query(
-    'SELECT id, name, total_grams, kcal_per_100g, kcal_total FROM recipes WHERE id = $1 AND user_id = $2',
-    [recipeId, userId]
+    'SELECT id, name, total_grams, kcal_per_100g, kcal_total FROM recipes WHERE id = $1',
+    [recipeId]
   );
   if (!recipeRows.length) return null;
   const { rows: ingredients } = await pool.query(
@@ -18,12 +19,9 @@ export default async function recipesRoutes(fastify) {
   fastify.addHook('preHandler', authenticate);
 
   fastify.get('/api/recipes', async (request) => {
-    const { rows } = await pool.query(
-      'SELECT id FROM recipes WHERE user_id = $1 ORDER BY name ASC',
-      [request.user.sub]
-    );
+    const { rows } = await pool.query('SELECT id FROM recipes ORDER BY name ASC');
     const recipes = [];
-    for (const r of rows) recipes.push(await loadRecipe(request.user.sub, r.id));
+    for (const r of rows) recipes.push(await loadRecipe(r.id));
     return recipes;
   });
 
@@ -52,7 +50,7 @@ export default async function recipesRoutes(fastify) {
         );
       }
       await client.query('COMMIT');
-      return reply.code(201).send(await loadRecipe(request.user.sub, recipeId));
+      return reply.code(201).send(await loadRecipe(recipeId));
     } catch (err) {
       await client.query('ROLLBACK');
       throw err;
@@ -62,8 +60,8 @@ export default async function recipesRoutes(fastify) {
   });
 
   fastify.delete('/api/recipes/:id', async (request, reply) => {
-    const { rowCount } = await pool.query('DELETE FROM recipes WHERE id = $1 AND user_id = $2', [request.params.id, request.user.sub]);
-    if (!rowCount) return reply.code(404).send({ error: 'not found or not owned' });
+    const { rowCount } = await pool.query('DELETE FROM recipes WHERE id = $1', [request.params.id]);
+    if (!rowCount) return reply.code(404).send({ error: 'not found' });
     return { ok: true };
   });
 }
