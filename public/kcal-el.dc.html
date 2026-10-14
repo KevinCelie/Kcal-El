@@ -100,7 +100,7 @@ if ('serviceWorker' in navigator) {
 
   <div style="{{ contentAreaStyle }}">
 
-    <div data-screen-label="Journal" style="{{ journalWrapStyle }}">
+    <div data-screen-label="Journal" style="{{ journalWrapStyle }}" onTouchStart="{{ onJournalTouchStart }}" onTouchEnd="{{ onJournalTouchEnd }}">
     <sc-if value="{{ isJournalTab }}" hint-placeholder-val="{{ true }}">
       <div style="{{ journalHeaderRowStyle }}">
         <button type="button" aria-label="Jour précédent" onClick="{{ prevDay }}" style="width:40px;height:40px;border-radius:20px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#5F5F68;" style-hover="background:#EDEDF2;">
@@ -405,6 +405,9 @@ if ('serviceWorker' in navigator) {
       </div>
       </div>
 
+    </sc-if>
+    </div>
+
       <sc-if value="{{ showScanOverlay }}" hint-placeholder-val="{{ false }}">
         <div style="position:fixed;inset:0;background:rgba(20,20,24,0.92);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;">
           <div style="width:100%;max-width:420px;max-height:88vh;overflow:auto;background:#fff;border-radius:20px;padding:16px;">
@@ -430,7 +433,7 @@ if ('serviceWorker' in navigator) {
               <label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Code-barres</label>
               <div style="display:flex;gap:8px;">
                 <input type="text" inputmode="numeric" placeholder="ex : 3017620422003" value="{{ scanManualCode }}" onChange="{{ onScanManualCodeChange }}" style="flex:1;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
-                <button type="button" onClick="{{ submitManualCode }}" style="height:42px;padding:0 16px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Rechercher</button>
+                <button type="button" onClick="{{ submitManualCode }}" style="height:42px;padding:0 16px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">{{ scanSubmitLabel }}</button>
               </div>
             </div>
 
@@ -451,7 +454,22 @@ if ('serviceWorker' in navigator) {
             </sc-if>
 
             <sc-if value="{{ scanNotFound }}" hint-placeholder-val="{{ false }}">
-              <p style="font-size:13px;color:#5F5F68;margin-top:12px;">Aucun produit trouvé pour ce code. Vous pouvez l'ajouter manuellement depuis l'onglet Base.</p>
+              <div style="background:#FAFAFB;border-radius:16px;padding:14px;margin-top:12px;">
+                <div style="font-size:11px;font-weight:700;color:#8B8B94;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Produit inconnu</div>
+                <p style="font-size:13px;color:#5F5F68;margin:0 0 12px;">Aucun produit trouvé pour ce code. Renseignez-le ici : il sera ajouté à la base avec ce code-barres.</p>
+                <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">Nom</label>
+                  <input type="text" value="{{ scanNewName }}" onChange="{{ onScanNewNameChange }}" placeholder="ex : Yaourt nature" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#fff;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;"></div>
+                <div style="display:flex;gap:10px;margin-bottom:12px;">
+                  <div style="flex:1;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">{{ energyUnitLabel }} / 100 g</label>
+                    <input type="number" value="{{ scanNewKcal }}" onChange="{{ onScanNewKcalChange }}" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#fff;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;"></div>
+                  <div style="flex:1;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">Portion (g)</label>
+                    <input type="number" value="{{ scanNewPortion }}" onChange="{{ onScanNewPortionChange }}" placeholder="100" style="width:100%;height:42px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#fff;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;"></div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button type="button" onClick="{{ createScannedFood }}" disabled="{{ scanNewInvalid }}" style="flex:1;height:42px;border-radius:21px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;" style-hover="background:#303F9F;">Ajouter et sélectionner</button>
+                  <button type="button" onClick="{{ cancelScanFound }}" style="height:42px;padding:0 16px;border-radius:21px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Rescanner</button>
+                </div>
+              </div>
             </sc-if>
             <sc-if value="{{ scanErrorMsg }}" hint-placeholder-val="{{ false }}">
               <p style="font-size:13px;color:#D6273B;margin-top:10px;">{{ scanErrorMsg }}</p>
@@ -459,8 +477,6 @@ if ('serviceWorker' in navigator) {
           </div>
         </div>
       </sc-if>
-    </sc-if>
-    </div>
 
     <div data-screen-label="Base de données">
     <sc-if value="{{ isDbTab }}" hint-placeholder-val="{{ false }}">
@@ -483,7 +499,10 @@ if ('serviceWorker' in navigator) {
             <input type="number" value="{{ newFoodPortionKcal }}" onChange="{{ onNewFoodPortionKcalChange }}" placeholder="calculé depuis le poids" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
             <div style="font-size:11px;color:#8B8B94;margin-top:5px;">Renseigne le poids ou les calories de la portion : l'autre valeur se calcule.</div></div>
           <div style="margin-bottom:14px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:5px;">Code-barres (optionnel)</label>
-            <input type="text" inputmode="numeric" value="{{ newFoodBarcode }}" onChange="{{ onNewFoodBarcodeChange }}" placeholder="ex : 3017620422003" style="width:100%;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;"></div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" inputmode="numeric" value="{{ newFoodBarcode }}" onChange="{{ onNewFoodBarcodeChange }}" placeholder="ex : 3017620422003" style="flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
+              <button type="button" aria-label="Scanner un code-barres" onClick="{{ scanForNewFood }}" style="flex-shrink:0;height:44px;padding:0 14px;border-radius:22px;background:#E4EAF8;color:#2C4FA3;font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#D5DEF3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg>Scanner</button>
+            </div></div>
           <div style="display:flex;gap:8px;">
             <button type="button" onClick="{{ saveNewFood }}" disabled="{{ newFoodInvalid }}" style="flex:1;height:44px;border-radius:22px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
             <button type="button" onClick="{{ cancelNewFood }}" style="height:44px;padding:0 18px;border-radius:22px;background:transparent;color:#5F5F68;font-weight:700;font-size:14px;border:none;cursor:pointer;">Annuler</button>
@@ -505,7 +524,10 @@ if ('serviceWorker' in navigator) {
             <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">{{ energyUnitLabel }} d'une portion</label>
               <input type="number" value="{{ food.editPortionKcal }}" onChange="{{ food.onEditPortionKcalChange }}" placeholder="calculé depuis le poids" style="width:100%;height:40px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;"></div>
             <div style="margin-bottom:10px;"><label style="display:block;font-size:12px;font-weight:600;color:#5F5F68;margin-bottom:4px;">Code-barres</label>
-              <input type="text" inputmode="numeric" value="{{ food.editBarcode }}" onChange="{{ food.onEditBarcodeChange }}" placeholder="optionnel" style="width:100%;height:40px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;"></div>
+              <div style="display:flex;gap:8px;">
+                <input type="text" inputmode="numeric" value="{{ food.editBarcode }}" onChange="{{ food.onEditBarcodeChange }}" placeholder="optionnel" style="flex:1;min-width:0;height:40px;padding:0 12px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;">
+                <button type="button" aria-label="Scanner un code-barres" onClick="{{ food.onScanBarcode }}" style="flex-shrink:0;height:40px;padding:0 14px;border-radius:20px;background:#E4EAF8;color:#2C4FA3;font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#D5DEF3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg>Scanner</button>
+              </div></div>
             <div style="display:flex;gap:8px;">
               <button type="button" onClick="{{ food.onSaveEdit }}" style="height:38px;padding:0 16px;border-radius:19px;background:#2C4FA3;color:#fff;font-weight:700;font-size:13px;border:none;cursor:pointer;">Enregistrer</button>
               <button type="button" onClick="{{ food.onCancelEdit }}" style="height:38px;padding:0 16px;border-radius:19px;background:transparent;color:#5F5F68;font-weight:700;font-size:13px;border:none;cursor:pointer;">Annuler</button>
@@ -868,7 +890,8 @@ class Component extends DCLogic {
       dupTargetDate: todayIso,
       dupTargetMeal: null,
       goalInput: String(this.formatEnergyRaw(goal, props)),
-      scanning: false, scanManualCode: '', scanStatus: 'idle', scanFoundFood: null, scanErrorMsg: '',
+      scanning: false, scanTarget: 'journal', scanManualCode: '', scanStatus: 'idle', scanFoundFood: null, scanErrorMsg: '',
+      scanNewName: '', scanNewKcal: '', scanNewPortion: '100',
       newFoodBarcode: '', editBarcode: '',
       isDesktop: typeof window !== 'undefined' && window.innerWidth >= 1024,
       calMonthDelta: 0, calendarOpen: false,
@@ -1064,10 +1087,17 @@ class Component extends DCLogic {
   }
   onAmountChange(e) { this.setState({ amount: Math.max(0, parseFloat(e.target.value) || 0) }); }
 
-  openScan() {
-    if (!this.state.addingMeal) return;
+  // target : 'journal' (chercher/ajouter un aliment au journal),
+  // 'newFood' (remplir le code-barres du formulaire « Nouvel aliment »),
+  // 'editFood' (remplir le code-barres d'un aliment en cours de modification).
+  openScan(target) {
+    const t = (target === 'newFood' || target === 'editFood') ? target : 'journal';
+    if (t === 'journal' && !this.state.addingMeal) return;
     const supported = typeof window !== 'undefined' && 'BarcodeDetector' in window;
-    this.setState({ scanning: true, scanManualCode: '', scanStatus: supported ? 'starting' : 'no-camera', scanFoundFood: null, scanErrorMsg: '' });
+    this.setState({
+      scanning: true, scanTarget: t, scanManualCode: '', scanStatus: supported ? 'starting' : 'no-camera',
+      scanFoundFood: null, scanErrorMsg: '', scanNewName: '', scanNewKcal: '', scanNewPortion: '100',
+    });
     if (supported) this.startCameraScan();
   }
   startCameraScan() {
@@ -1102,6 +1132,9 @@ class Component extends DCLogic {
   }
   lookupBarcode(code) {
     this.stopCamera();
+    // Depuis la Base : on remplit simplement le champ code-barres du formulaire.
+    if (this.state.scanTarget === 'newFood') { this.setState({ newFoodBarcode: code, scanning: false, scanStatus: 'idle' }); return; }
+    if (this.state.scanTarget === 'editFood') { this.setState({ editBarcode: code, scanning: false, scanStatus: 'idle' }); return; }
     const local = this.state.foods.find(f => f.barcode === code);
     if (local) { this.setState({ scanning: false, scanStatus: 'idle' }); this.selectFood(local.id); return; }
     this.setState({ scanStatus: 'looking-up', scanManualCode: code });
@@ -1133,6 +1166,44 @@ class Component extends DCLogic {
     this.setState({ foods: [...this.state.foods, food] });
     this.selectFood(food.id);
   }
+  onScanNewNameChange(e) { this.setState({ scanNewName: e.target.value }); }
+  onScanNewKcalChange(e) { this.setState({ scanNewKcal: e.target.value }); }
+  onScanNewPortionChange(e) { this.setState({ scanNewPortion: e.target.value.replace(/[^0-9.]/g, '') }); }
+  // Code introuvable : création directe de l'aliment avec ce code-barres.
+  async createScannedFood() {
+    const name = this.state.scanNewName.trim();
+    const val = parseFloat(this.state.scanNewKcal);
+    if (!name || isNaN(val) || val < 0) return;
+    const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
+    const portionGrams = parseFloat(this.state.scanNewPortion) || 100;
+    const barcode = this.state.scanManualCode.trim() || null;
+    try {
+      const food = this.state.demoMode
+        ? { id: 'd' + Date.now(), name, kcal, barcode, portionGrams }
+        : foodFromApi(await api('POST', '/api/foods', { name, kcal_per_100g: kcal, barcode, portion_grams: portionGrams }));
+      this.setState({ scanning: false, scanStatus: 'idle', foods: [...this.state.foods, food] });
+      this.selectFood(food.id);
+    } catch (err) {
+      this.setState({ scanErrorMsg: 'Enregistrement impossible. Réessayez.' });
+    }
+  }
+
+  // Balayage gauche/droite sur le journal : jour suivant / précédent.
+  onJournalTouchStart(e) {
+    const t = e.touches && e.touches[0];
+    const el = e.target && e.target.closest ? e.target.closest('input, textarea, select') : null;
+    this._swipe = t && !el ? { x: t.clientX, y: t.clientY, at: Date.now() } : null;
+  }
+  onJournalTouchEnd(e) {
+    const start = this._swipe; this._swipe = null;
+    const t = e.changedTouches && e.changedTouches[0];
+    const s = this.state;
+    if (!start || !t || s.tab !== 'journal' || s.scanning || s.addingMeal || s.calendarOpen) return;
+    const dx = t.clientX - start.x, dy = t.clientY - start.y;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < 1.8 * Math.abs(dy) || Date.now() - start.at > 900) return;
+    this.changeDate(dx < 0 ? 1 : -1);
+  }
+
   cancelScanFound() {
     this.setState({ scanFoundFood: null });
     if (typeof window !== 'undefined' && 'BarcodeDetector' in window) { this.setState({ scanStatus: 'starting' }); this.startCameraScan(); }
@@ -1639,6 +1710,7 @@ class Component extends DCLogic {
         portionGramsDisplay: `${f.portionGrams || 100} g`,
         onSaveEdit: () => this.saveEditFood(), onCancelEdit: () => this.cancelEditFood(),
         onStartEdit: () => this.startEditFood(f), onDelete: () => this.deleteFood(f),
+        onScanBarcode: () => this.openScan('editFood'),
       };
     });
 
@@ -1778,7 +1850,15 @@ class Component extends DCLogic {
       dupTargetDate: s.dupTargetDate, onDupDateChange: (e) => this.onDupDateChange(e),
       dupMealOptions, confirmDuplicate: () => this.confirmDuplicate(), cancelDuplicate: () => this.cancelDuplicate(),
 
-      openScan: () => this.openScan(), closeScan: () => this.closeScan(), videoRef: this.videoRef,
+      openScan: () => this.openScan('journal'), closeScan: () => this.closeScan(), videoRef: this.videoRef,
+      scanForNewFood: () => this.openScan('newFood'),
+      scanSubmitLabel: s.scanTarget === 'journal' ? 'Rechercher' : 'Utiliser',
+      scanNewName: s.scanNewName, onScanNewNameChange: (e) => this.onScanNewNameChange(e),
+      scanNewKcal: s.scanNewKcal, onScanNewKcalChange: (e) => this.onScanNewKcalChange(e),
+      scanNewPortion: s.scanNewPortion, onScanNewPortionChange: (e) => this.onScanNewPortionChange(e),
+      scanNewInvalid: !s.scanNewName.trim() || isNaN(parseFloat(s.scanNewKcal)) || parseFloat(s.scanNewKcal) < 0,
+      createScannedFood: () => this.createScannedFood(),
+      onJournalTouchStart: (e) => this.onJournalTouchStart(e), onJournalTouchEnd: (e) => this.onJournalTouchEnd(e),
       showScanOverlay: s.scanning,
       showVideo: s.scanStatus === 'starting' || s.scanStatus === 'scanning',
       showNoCameraMsg: s.scanStatus === 'no-camera',
@@ -1787,7 +1867,7 @@ class Component extends DCLogic {
       scanFoundProduct: s.scanStatus === 'found' && !!s.scanFoundFood,
       scanFoundName: s.scanFoundFood ? s.scanFoundFood.name : '',
       scanFoundKcalDisplay: s.scanFoundFood ? this.formatEnergyDisplay(s.scanFoundFood.kcal) + ' / 100 g' : '',
-      scanNotFound: s.scanStatus === 'not-found',
+      scanNotFound: s.scanStatus === 'not-found' && s.scanTarget === 'journal',
       scanErrorMsg: s.scanErrorMsg,
       scanManualCode: s.scanManualCode, onScanManualCodeChange: (e) => this.onScanManualCodeChange(e), submitManualCode: () => this.submitManualCode(),
       confirmScannedFood: () => this.confirmScannedFood(), cancelScanFound: () => this.cancelScanFound(),
