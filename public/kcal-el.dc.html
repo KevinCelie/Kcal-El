@@ -502,7 +502,8 @@ if ('serviceWorker' in navigator) {
             <div style="display:flex;gap:8px;">
               <input type="text" inputmode="numeric" value="{{ newFoodBarcode }}" onChange="{{ onNewFoodBarcodeChange }}" placeholder="ex : 3017620422003" style="flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;border:1.5px solid #E4E4EA;background:#FAFAFA;font-size:14px;outline:none;" style-focus="border-color:#2C4FA3;background:#fff;">
               <button type="button" aria-label="Scanner un code-barres" onClick="{{ scanForNewFood }}" style="flex-shrink:0;height:44px;padding:0 14px;border-radius:22px;background:#E4EAF8;color:#2C4FA3;font-weight:700;font-size:13px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;" style-hover="background:#D5DEF3;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5v14"></path><path d="M8 5v14"></path><path d="M12 5v14"></path><path d="M17 5v14"></path><path d="M21 5v14"></path></svg>Scanner</button>
-            </div></div>
+            </div>
+            <sc-if value="{{ newFoodScanNote }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px;color:#8B8B94;margin-top:5px;">{{ newFoodScanNote }}</div></sc-if></div>
           <div style="display:flex;gap:8px;">
             <button type="button" onClick="{{ saveNewFood }}" disabled="{{ newFoodInvalid }}" style="flex:1;height:44px;border-radius:22px;background:#2C4FA3;color:#fff;font-weight:700;font-size:14px;border:none;cursor:pointer;">Enregistrer</button>
             <button type="button" onClick="{{ cancelNewFood }}" style="height:44px;padding:0 18px;border-radius:22px;background:transparent;color:#5F5F68;font-weight:700;font-size:14px;border:none;cursor:pointer;">Annuler</button>
@@ -908,7 +909,7 @@ class Component extends DCLogic {
       goalInput: String(this.formatEnergyRaw(goal, props)),
       scanning: false, scanTarget: 'journal', scanManualCode: '', scanStatus: 'idle', scanFoundFood: null, scanErrorMsg: '',
       scanNewName: '', scanNewKcal: '', scanNewPortion: '100',
-      newFoodBarcode: '', editBarcode: '',
+      newFoodBarcode: '', newFoodScanNote: '', editBarcode: '',
       isDesktop: typeof window !== 'undefined' && window.innerWidth >= 1024,
       calMonthDelta: 0, calendarOpen: false,
       dataMsg: '', dataMsgOk: true, goalHistory: [], statsMode: 'week', statsOffset: 0, newFoodPortionKcal: '', editPortionKcal: '',
@@ -1146,39 +1147,104 @@ class Component extends DCLogic {
     if (!code) return;
     this.lookupBarcode(code);
   }
+  // Interroge Open Food Facts. Renvoie null si le produit est inconnu, sinon
+  // { name, kcal (pour 100 g, ou null si non renseignées), portionGrams (ou null) }.
+  async fetchOffProduct(code) {
+    const fields = 'product_name,product_name_fr,nutriments,nutriments_estimated,serving_quantity,serving_quantity_unit,serving_size';
+    const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${encodeURIComponent(code)}.json?fields=${fields}`);
+    const data = await r.json();
+    const p = data && data.product;
+    if (!p) return null;
+    const readKcal = (n) => {
+      if (!n) return null;
+      if (typeof n['energy-kcal_100g'] === 'number') return n['energy-kcal_100g'];
+      if (typeof n['energy_100g'] === 'number') return n['energy_100g'] / 4.184;
+      return null;
+    };
+    // Certains produits n'ont que des valeurs estimées (à partir des
+    // ingrédients) plutôt que des valeurs nutritionnelles renseignées.
+    const kcal = readKcal(p.nutriments) ?? readKcal(p.nutriments_estimated);
+    return {
+      name: String(p.product_name_fr || p.product_name || '').trim(),
+      kcal: kcal != null ? Math.round(kcal) : null,
+      portionGrams: Component.offPortionGrams(p),
+    };
+  }
+  // Taille d'une portion en grammes, si Open Food Facts l'indique (les ml sont
+  // comptés comme des grammes, ce qui est correct pour les boissons usuelles).
+  static offPortionGrams(p) {
+    const q = parseFloat(p.serving_quantity);
+    const unit = String(p.serving_quantity_unit || '').trim().toLowerCase();
+    if (q > 0 && q <= 2000 && (!unit || unit === 'g' || unit === 'ml')) return Math.round(q * 10) / 10;
+    const m = String(p.serving_size || '').replace(',', '.').match(/(\d+(?:\.\d+)?)\s*(g|ml|cl)\b/i);
+    if (m) {
+      const v = parseFloat(m[1]) * (m[2].toLowerCase() === 'cl' ? 10 : 1);
+      if (v > 0 && v <= 2000) return Math.round(v * 10) / 10;
+    }
+    return null;
+  }
   lookupBarcode(code) {
     this.stopCamera();
-    // Depuis la Base : on remplit simplement le champ code-barres du formulaire.
-    if (this.state.scanTarget === 'newFood') { this.setState({ newFoodBarcode: code, scanning: false, scanStatus: 'idle' }); return; }
+    // Depuis la Base : modification d'un aliment = on ne change que le code-barres
+    // (pour ne pas écraser ses valeurs) ; nouvel aliment = on remplit le formulaire.
     if (this.state.scanTarget === 'editFood') { this.setState({ editBarcode: code, scanning: false, scanStatus: 'idle' }); return; }
+    if (this.state.scanTarget === 'newFood') { this.fillNewFoodFromBarcode(code); return; }
     const local = this.state.foods.find(f => f.barcode === code);
     if (local) { this.setState({ scanning: false, scanStatus: 'idle' }); this.selectFood(local.id); return; }
     this.setState({ scanStatus: 'looking-up', scanManualCode: code });
-    fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,nutriments,nutriments_estimated`)
-      .then(r => r.json())
-      .then(data => {
-        const p = data && data.product;
-        const readKcal = (n) => {
-          if (!n) return null;
-          if (typeof n['energy-kcal_100g'] === 'number') return n['energy-kcal_100g'];
-          if (typeof n['energy_100g'] === 'number') return n['energy_100g'] / 4.184;
-          return null;
-        };
-        // Certains produits n'ont que des valeurs estimées (à partir des
-        // ingrédients) plutôt que des valeurs nutritionnelles renseignées.
-        const kcal = readKcal(p && p.nutriments) ?? readKcal(p && p.nutriments_estimated);
-        if (p && p.product_name && kcal != null) this.setState({ scanStatus: 'found', scanFoundFood: { name: p.product_name, kcal: Math.round(kcal), barcode: code } });
-        else this.setState({ scanStatus: 'not-found' });
+    this.fetchOffProduct(code)
+      .then(info => {
+        if (info && info.name && info.kcal != null) {
+          this.setState({ scanStatus: 'found', scanFoundFood: { name: info.name, kcal: info.kcal, portionGrams: info.portionGrams, barcode: code } });
+        } else {
+          // Produit inconnu ou incomplet : on pré-remplit ce qu'on a pour la saisie directe.
+          this.setState({
+            scanStatus: 'not-found',
+            scanNewName: info && info.name ? info.name : '',
+            scanNewKcal: info && info.kcal != null ? String(this.formatEnergyRaw(info.kcal)) : '',
+            scanNewPortion: String((info && info.portionGrams) || 100),
+          });
+        }
       })
       .catch(() => { this.setState({ scanStatus: 'not-found', scanErrorMsg: 'Impossible de contacter la base de produits.' }); });
+  }
+  // Base > Nouvel aliment : le code lu remplit le code-barres puis, via Open Food
+  // Facts, le nom, les calories et la portion (sans écraser ce qui est déjà saisi).
+  async fillNewFoodFromBarcode(code) {
+    const existing = this.state.foods.find(f => f.barcode === code);
+    this.setState({ scanStatus: 'looking-up', scanManualCode: code });
+    let info = null, failed = false;
+    try { info = await this.fetchOffProduct(code); } catch (e) { failed = true; }
+    this.setState(s => {
+      const next = { newFoodBarcode: code, scanning: false, scanStatus: 'idle' };
+      const notes = [];
+      if (existing) notes.push(`Ce code-barres est déjà associé à « ${existing.name} ».`);
+      if (failed) notes.push('Open Food Facts est injoignable : complète les champs à la main.');
+      else if (!info) notes.push('Produit introuvable sur Open Food Facts : complète les champs à la main.');
+      else {
+        if (info.name && !s.newFoodName.trim()) next.newFoodName = info.name;
+        const kcalStr = String(s.newFoodKcal).trim();
+        let kcalNow = kcalStr;
+        if (info.kcal != null && !kcalStr) { kcalNow = String(this.formatEnergyRaw(info.kcal)); next.newFoodKcal = kcalNow; }
+        let gramsNow = s.newFoodPortionGrams;
+        if (info.portionGrams && (!String(gramsNow).trim() || String(gramsNow) === '100')) { gramsNow = String(info.portionGrams); next.newFoodPortionGrams = gramsNow; }
+        next.newFoodPortionKcal = Component.portionKcalOf(kcalNow, gramsNow);
+        notes.push(info.kcal == null
+          ? 'Calories non renseignées sur Open Food Facts : à compléter.'
+          : 'Informations récupérées sur Open Food Facts, à vérifier.');
+        notes.push(info.portionGrams ? `Portion : ${info.portionGrams} g.` : 'Pas de taille de portion indiquée.');
+      }
+      next.newFoodScanNote = notes.join(' ');
+      return next;
+    });
   }
   async confirmScannedFood() {
     const f = this.state.scanFoundFood;
     if (!f) return;
     this.setState({ scanning: false, scanStatus: 'idle', scanFoundFood: null });
     const food = this.state.demoMode
-      ? { id: 'd' + Date.now(), name: f.name, kcal: f.kcal, barcode: f.barcode }
-      : foodFromApi(await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal, barcode: f.barcode }));
+      ? { id: 'd' + Date.now(), name: f.name, kcal: f.kcal, barcode: f.barcode, portionGrams: f.portionGrams || 100 }
+      : foodFromApi(await api('POST', '/api/foods', { name: f.name, kcal_per_100g: f.kcal, barcode: f.barcode, portion_grams: f.portionGrams || 100 }));
     this.setState({ foods: [...this.state.foods, food] });
     this.selectFood(food.id);
   }
@@ -1298,11 +1364,11 @@ class Component extends DCLogic {
   onSearchChange(e) { this.setState({ searchQuery: e.target.value }); }
   onDbSearchChange(e) { this.setState({ dbSearchQuery: e.target.value }); }
 
-  openNewFoodForm() { this.setState({ showNewFoodForm: true, newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100', newFoodPortionKcal: '' }); }
-  cancelNewFood() { this.setState({ showNewFoodForm: false }); }
+  openNewFoodForm() { this.setState({ showNewFoodForm: true, newFoodScanNote: '', newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100', newFoodPortionKcal: '' }); }
+  cancelNewFood() { this.setState({ showNewFoodForm: false, newFoodScanNote: '' }); }
   onNewFoodNameChange(e) { this.setState({ newFoodName: e.target.value }); }
   onNewFoodKcalChange(e) { const v = e.target.value; this.setState(s => ({ newFoodKcal: v, newFoodPortionKcal: Component.portionKcalOf(v, s.newFoodPortionGrams) })); }
-  onNewFoodBarcodeChange(e) { this.setState({ newFoodBarcode: e.target.value.replace(/[^0-9]/g, '') }); }
+  onNewFoodBarcodeChange(e) { this.setState({ newFoodBarcode: e.target.value.replace(/[^0-9]/g, ''), newFoodScanNote: '' }); }
   static portionKcalOf(kcalStr, gramsStr) { const k = parseFloat(kcalStr), g = parseFloat(gramsStr); return (k >= 0 && g >= 0) ? String(Math.round(k * g / 100)) : ''; }
   static portionGramsOf(kcalStr, pKcalStr) { const k = parseFloat(kcalStr), p = parseFloat(pKcalStr); return (k > 0 && p >= 0) ? String(Math.round(p / k * 1000) / 10) : null; }
   onNewFoodPortionGramsChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => ({ newFoodPortionGrams: v, newFoodPortionKcal: Component.portionKcalOf(s.newFoodKcal, v) })); }
@@ -1314,7 +1380,7 @@ class Component extends DCLogic {
     const kcal = Math.round(this.unit === 'kJ' ? val / 4.184 : val);
     const barcode = this.state.newFoodBarcode.trim() || null;
     const portionGrams = parseFloat(this.state.newFoodPortionGrams) || 100;
-    this.setState({ showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100' });
+    this.setState({ showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100', newFoodScanNote: '' });
     const food = this.state.demoMode
       ? { id: 'd' + Date.now(), name, kcal, barcode, portionGrams }
       : foodFromApi(await api('POST', '/api/foods', { name, kcal_per_100g: kcal, barcode, portion_grams: portionGrams }));
@@ -1876,7 +1942,7 @@ class Component extends DCLogic {
       dupMealOptions, confirmDuplicate: () => this.confirmDuplicate(), cancelDuplicate: () => this.cancelDuplicate(),
 
       openScan: () => this.openScan('journal'), closeScan: () => this.closeScan(), videoRef: this.videoRef,
-      scanForNewFood: () => this.openScan('newFood'),
+      scanForNewFood: () => this.openScan('newFood'), newFoodScanNote: s.newFoodScanNote,
       scanSubmitLabel: s.scanTarget === 'journal' ? 'Rechercher' : 'Utiliser',
       scanNewName: s.scanNewName, onScanNewNameChange: (e) => this.onScanNewNameChange(e),
       scanNewKcal: s.scanNewKcal, onScanNewKcalChange: (e) => this.onScanNewKcalChange(e),
@@ -1891,7 +1957,7 @@ class Component extends DCLogic {
       scanIsLookingUp: s.scanStatus === 'looking-up',
       scanFoundProduct: s.scanStatus === 'found' && !!s.scanFoundFood,
       scanFoundName: s.scanFoundFood ? s.scanFoundFood.name : '',
-      scanFoundKcalDisplay: s.scanFoundFood ? this.formatEnergyDisplay(s.scanFoundFood.kcal) + ' / 100 g' : '',
+      scanFoundKcalDisplay: s.scanFoundFood ? this.formatEnergyDisplay(s.scanFoundFood.kcal) + ' / 100 g' + (s.scanFoundFood.portionGrams ? ` · portion ${s.scanFoundFood.portionGrams} g` : '') : '',
       scanNotFound: s.scanStatus === 'not-found' && s.scanTarget === 'journal',
       scanErrorMsg: s.scanErrorMsg,
       scanManualCode: s.scanManualCode, onScanManualCodeChange: (e) => this.onScanManualCodeChange(e), submitManualCode: () => this.submitManualCode(),
