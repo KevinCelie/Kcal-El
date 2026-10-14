@@ -620,11 +620,13 @@ if ('serviceWorker' in navigator) {
       <sc-if value="{{ hasRecipes }}" hint-placeholder-val="{{ false }}">
         <div style="background:#FFFFFF;border-radius:20px;padding:4px 16px;box-shadow:0 1px 3px rgba(28,27,31,0.06),0 6px 16px rgba(28,27,31,0.05);">
           <sc-for list="{{ recipesList }}" as="recipe" hint-placeholder-count="4">
-            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F0F0F3;">
-              <div style="min-width:0;">
+            <div style="padding:12px 0;border-bottom:1px solid #F0F0F3;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <button type="button" aria-expanded="{{ recipe.isExpanded }}" onClick="{{ recipe.onToggleDetail }}" style="flex:1;min-width:0;text-align:left;background:transparent;border:none;padding:0;cursor:pointer;font-family:inherit;color:inherit;">
                 <div style="font-weight:600;font-size:14px;">{{ recipe.name }}</div>
                 <div style="font-size:12px;color:#8B8B94;font-weight:700;margin-top:2px;">{{ recipe.kcalPer100gDisplay }} /100 g · {{ recipe.ingredientsCountLabel }}</div>
-              </div>
+                <div style="font-size:12px;color:#2C4FA3;font-weight:700;margin-top:4px;">{{ recipe.detailToggleLabel }}</div>
+              </button>
               <div style="display:flex;gap:2px;flex-shrink:0;">
                 <button type="button" aria-label="Modifier" onClick="{{ recipe.onEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#E4EAF8;color:#2C4FA3;">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.986L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"></path></svg>
@@ -633,6 +635,21 @@ if ('serviceWorker' in navigator) {
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" x2="10" y1="11" y2="17"></line><line x1="14" x2="14" y1="11" y2="17"></line></svg>
                 </button>
               </div>
+            </div>
+            <sc-if value="{{ recipe.isExpanded }}" hint-placeholder-val="{{ false }}">
+              <div style="background:#FAFAFB;border-radius:12px;padding:8px 10px;margin-top:8px;">
+                <sc-for list="{{ recipe.detailIngredients }}" as="ing" hint-placeholder-count="3">
+                  <div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;font-size:12px;color:#5F5F68;">
+                    <span>{{ ing.name }} · {{ ing.amountLabel }}</span>
+                    <span style="font-weight:700;flex-shrink:0;">{{ ing.kcalDisplay }}</span>
+                  </div>
+                </sc-for>
+                <div style="display:flex;justify-content:space-between;gap:12px;padding:6px 0 2px;margin-top:4px;border-top:1px solid #ECECF0;font-size:12px;font-weight:800;color:#1C1B1F;">
+                  <span>{{ recipe.totalLabel }}</span>
+                  <span>{{ recipe.totalKcalDisplay }}</span>
+                </div>
+              </div>
+            </sc-if>
             </div>
           </sc-for>
         </div>
@@ -868,7 +885,7 @@ class Component extends DCLogic {
       foods: [], entries: [], goal, recipes: [],
       showRecipeBuilder: false, editingRecipeId: null,
       recipeBuilderName: '', recipeBuilderIngredients: [],
-      recipeIngSearchQuery: '', expandedEntryId: null,
+      recipeIngSearchQuery: '', expandedEntryId: null, expandedRecipeId: null,
       addingMeal: null,
       searchQuery: '',
       selectedFoodId: null,
@@ -1250,6 +1267,7 @@ class Component extends DCLogic {
   }
   startEditEntry(entry) { this.setState({ editingEntryId: entry.id, editEntryUnitMode: entry.unitMode, editEntryAmount: entry.amount }); }
   cancelEditEntry() { this.setState({ editingEntryId: null }); }
+  toggleRecipeDetail(id) { this.setState(s => ({ expandedRecipeId: s.expandedRecipeId === id ? null : id })); }
   toggleEntryDetail(id) { this.setState(s => ({ expandedEntryId: s.expandedEntryId === id ? null : id })); }
   setEditEntryModeGram() { this.setState({ editEntryUnitMode: 'g', editEntryAmount: 100 }); }
   setEditEntryModePortion() { this.setState({ editEntryUnitMode: 'portion', editEntryAmount: 1 }); }
@@ -1770,6 +1788,15 @@ class Component extends DCLogic {
       kcalPer100gDisplay: this.formatEnergyDisplay(r.kcalPer100g),
       ingredientsCountLabel: `${r.ingredients.length} ingrédient${r.ingredients.length === 1 ? '' : 's'}`,
       onEdit: () => this.startEditRecipe(r), onDelete: () => this.deleteRecipe(r),
+      isExpanded: s.expandedRecipeId === r.id,
+      onToggleDetail: () => this.toggleRecipeDetail(r.id),
+      detailToggleLabel: s.expandedRecipeId === r.id ? 'Masquer les ingrédients' : 'Voir les ingrédients',
+      detailIngredients: r.ingredients.map(i => ({
+        name: i.name, amountLabel: `${i.grams} g`,
+        kcalDisplay: this.formatEnergyDisplay(Math.round(i.kcalPer100g * i.grams / 100)),
+      })),
+      totalLabel: `Total · ${Math.round(r.totalGrams)} g`,
+      totalKcalDisplay: this.formatEnergyDisplay(r.kcalTotal),
     }));
     const rbIngFoodIds = new Set(s.recipeBuilderIngredients.map(i => i.foodId));
     const rbQuery = Component.normalize(s.recipeIngSearchQuery.trim());
