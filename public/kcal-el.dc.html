@@ -816,6 +816,14 @@ class Component extends DCLogic {
     { key: 'collations', label: 'Collations' },
   ];
 
+  // Onglet mémorisé pour qu'un rechargement de la page reste au même endroit.
+  static loadTab() {
+    try {
+      const t = localStorage.getItem('kcal-el:tab');
+      return ['journal', 'db', 'stats', 'profil', 'recipes'].includes(t) ? t : 'journal';
+    } catch (e) { return 'journal'; }
+  }
+  static saveTab(tab) { try { localStorage.setItem('kcal-el:tab', tab); } catch (e) {} }
   static toIso(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; }
   static fromIso(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
   static normalize(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
@@ -833,7 +841,7 @@ class Component extends DCLogic {
     this.state = {
       booting: true, showAuth: false, currentUser: null, demoMode: false,
       authView: 'login', authEmail: '', authPassword: '', authError: '', authLoading: false,
-      tab: 'journal',
+      tab: Component.loadTab(),
       dateIso: todayIso,
       foods: [], entries: [], goal, recipes: [],
       showRecipeBuilder: false, editingRecipeId: null,
@@ -880,15 +888,32 @@ class Component extends DCLogic {
   componentWillUnmount() { this.stopCamera(); window.removeEventListener('resize', this._onResize); }
 
   async boot() {
-    try {
-      const me = await api('GET', '/api/me');
-      if (!me) throw new Error('no session');
-      this.setState({ currentUser: me, showAuth: false });
-      await this.loadAllData();
-    } catch (err) {
-      this.setState({ showAuth: true });
-    } finally {
-      this.setState({ booting: false });
+    // Seule une réponse 401 veut dire « pas connecté ». Une panne réseau ou
+    // serveur (redéploiement, hors-ligne) est réessayée avant d'afficher quoi
+    // que ce soit, pour ne pas renvoyer l'utilisateur sur l'écran de connexion.
+    const MAX_ATTEMPTS = 4;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      try {
+        const me = await api('GET', '/api/me');
+        if (!me) throw Object.assign(new Error('no session'), { status: 401 });
+        this.setState({ currentUser: me, showAuth: false });
+        await this.loadAllData();
+        this.setState({ booting: false });
+        return;
+      } catch (err) {
+        if (err && err.status === 401) {
+          this.setState({ showAuth: true, booting: false });
+          return;
+        }
+        if (attempt < MAX_ATTEMPTS) {
+          await new Promise(r => setTimeout(r, 1000 * attempt));
+          continue;
+        }
+        this.setState({
+          currentUser: null, showAuth: true, booting: false,
+          authError: 'Serveur injoignable. Vérifie ta connexion puis réessaie.',
+        });
+      }
     }
   }
 
@@ -978,6 +1003,7 @@ class Component extends DCLogic {
   }
 
   setTab(tab) {
+    Component.saveTab(tab);
     this.setState({
       tab, addingMeal: null, selectedFoodId: null, searchQuery: '',
       dbSearchQuery: '', showNewFoodForm: false, newFoodName: '', newFoodKcal: '', newFoodPortionGrams: '100',
@@ -1448,7 +1474,7 @@ class Component extends DCLogic {
     const goal = (this.props && this.props.defaultGoal) || 2000;
     const ownEntries = this.state.entries;
     const ownRecipes = this.state.recipes;
-    this.setState({ entries: [], goal, goalHistory: [], goalInput: String(this.formatEnergyRaw(goal)), tab: 'journal', dateIso: Component.toIso(new Date()), addingMeal: null, recipes: [] });
+    this.setState({ entries: [], goal, goalHistory: [], goalInput: String(this.formatEnergyRaw(goal)), tab: (Component.saveTab('journal'), 'journal'), dateIso: Component.toIso(new Date()), addingMeal: null, recipes: [] });
     if (this.state.demoMode) return;
     await Promise.all([
       api('PUT', '/api/me/settings', { goal }),
