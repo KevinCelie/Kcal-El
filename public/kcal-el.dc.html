@@ -1729,7 +1729,7 @@ class Component extends DCLogic {
         const isExpanded = s.expandedEntryId === e.id;
         return {
           ...e,
-          amountLabel: e.unitMode === 'g' ? `${e.amount} g` : `${String(e.amount).replace('.', ',')} portion`,
+          amountLabel: e.unitMode === 'g' ? `${e.amount} g` : `${String(e.amount).replace('.', ',')} portion${e.isRecipe ? '' : ` (${Math.round(this.entryPortionGrams(e) * e.amount * 10) / 10} g)`}`,
           kcalDisplay: this.formatEnergyDisplay(e.kcalTotal),
           onDelete: () => this.deleteEntry(e.id),
           isEditing, isNotEditing: !isEditing,
