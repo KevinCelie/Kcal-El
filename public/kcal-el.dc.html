@@ -625,7 +625,6 @@ if ('serviceWorker' in navigator) {
               <button type="button" aria-expanded="{{ recipe.isExpanded }}" onClick="{{ recipe.onToggleDetail }}" style="flex:1;min-width:0;text-align:left;background:transparent;border:none;padding:0;cursor:pointer;font-family:inherit;color:inherit;">
                 <div style="font-weight:600;font-size:14px;">{{ recipe.name }}</div>
                 <div style="font-size:12px;color:#8B8B94;font-weight:700;margin-top:2px;">{{ recipe.kcalPer100gDisplay }} /100 g · {{ recipe.ingredientsCountLabel }}</div>
-                <div style="font-size:12px;color:#2C4FA3;font-weight:700;margin-top:4px;">{{ recipe.detailToggleLabel }}</div>
               </button>
               <div style="display:flex;gap:2px;flex-shrink:0;">
                 <button type="button" aria-label="Modifier" onClick="{{ recipe.onEdit }}" style="width:34px;height:34px;border-radius:17px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer;color:#8B8B94;" style-hover="background:#E4EAF8;color:#2C4FA3;">
@@ -1790,7 +1789,6 @@ class Component extends DCLogic {
       onEdit: () => this.startEditRecipe(r), onDelete: () => this.deleteRecipe(r),
       isExpanded: s.expandedRecipeId === r.id,
       onToggleDetail: () => this.toggleRecipeDetail(r.id),
-      detailToggleLabel: s.expandedRecipeId === r.id ? 'Masquer les ingrédients' : 'Voir les ingrédients',
       detailIngredients: r.ingredients.map(i => ({
         name: i.name, amountLabel: `${i.grams} g`,
         kcalDisplay: this.formatEnergyDisplay(Math.round(i.kcalPer100g * i.grams / 100)),
