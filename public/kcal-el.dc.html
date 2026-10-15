@@ -1750,7 +1750,7 @@ class Component extends DCLogic {
           editComputedKcalDisplay: isEditing ? this.formatEnergyDisplay(editComputedKcal) : '',
           editAmount: isEditing ? s.editEntryAmount : 0,
           onAmountChange: (e) => this.onEditEntryAmountChange(e),
-          amountUnitLabel: editIsGram ? 'g' : 'portion',
+          amountUnitLabel: editIsGram ? 'g' : (e.isRecipe ? 'portion' : `portion (${Math.round(editPortionGrams * s.editEntryAmount * 10) / 10} g)`),
         };
       });
       const subtotal = entries.reduce((sum, e) => sum + e.kcalTotal, 0);
@@ -1934,7 +1934,7 @@ class Component extends DCLogic {
       portionSegBg: !isGramMode ? '#ffffff' : 'transparent', portionSegColor: !isGramMode ? '#2C4FA3' : '#8B8B94', portionSegShadow: !isGramMode ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
       setModeGram: () => this.setModeGram(), setModePortion: () => this.setModePortion(),
       amountLabel, computedKcalDisplay: this.formatEnergyDisplay(computedKcal),
-      amount: s.amount, onAmountChange: (e) => this.onAmountChange(e), amountUnitLabel: isGramMode ? 'g' : 'portion',
+      amount: s.amount, onAmountChange: (e) => this.onAmountChange(e), amountUnitLabel: isGramMode ? 'g' : ((selectedFood && selectedFood.isRecipe) ? 'portion' : `portion (${Math.round(selectedPortionGrams * s.amount * 10) / 10} g)`),
       decAmount: () => this.decAmount(), incAmount: () => this.incAmount(),
       confirmAdd: () => this.confirmAdd(), cancelAddMeal: () => this.cancelAddMeal(),
 
