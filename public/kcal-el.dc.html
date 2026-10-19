@@ -865,7 +865,50 @@ class Component extends DCLogic {
   static saveTab(tab) { try { localStorage.setItem('kcal-el:tab', tab); } catch (e) {} }
   static toIso(d) { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; }
   static fromIso(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
-  static normalize(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+  static normalize(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/œ/g, 'oe').replace(/æ/g, 'ae'); }
+  // Distance de Damerau-Levenshtein (insertion, suppression, substitution, inversion de 2 lettres).
+  static editDistance(a, b) {
+    const n = a.length, m = b.length, d = [];
+    for (let i = 0; i <= n; i++) { d[i] = [i]; }
+    for (let j = 0; j <= m; j++) d[0][j] = j;
+    for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
+      const c = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+    return d[n][m];
+  }
+  // Score d'un mot de la requête face à un mot du nom (plus petit = meilleur, null = pas de correspondance).
+  static wordScore(t, w) {
+    if (t === w) return 0;
+    if (w.startsWith(t)) return 1;
+    if (t.length >= 2 && w.includes(t)) return 3;
+    const maxErr = t.length <= 3 ? 0 : t.length <= 6 ? 1 : 2;
+    if (!maxErr) return null;
+    const dist = Math.min(Component.editDistance(t, w), Component.editDistance(t, w.slice(0, t.length)) + 0.5);
+    return dist <= maxErr ? 4 + dist : null;
+  }
+  // Recherche tolérante : sans accents ni casse, tous les mots de la requête doivent correspondre
+  // (mot exact > début de mot > contenu dans un mot > faute de frappe). Renvoie les items triés par pertinence.
+  static searchRank(items, query, getName) {
+    const tokens = Component.normalize(query).split(/[^a-z0-9]+/).filter(Boolean);
+    if (!tokens.length) return [];
+    const out = [];
+    for (const it of items) {
+      const name = Component.normalize(getName(it));
+      const words = name.split(/[^a-z0-9]+/).filter(Boolean);
+      let total = 0, ok = true;
+      for (const t of tokens) {
+        let best = null;
+        for (const w of words) { const sc = Component.wordScore(t, w); if (sc !== null && (best === null || sc < best)) best = sc; }
+        if (best === null) { ok = false; break; }
+        total += best;
+      }
+      if (ok) out.push({ it, total, firstWord: words[0] && words[0].startsWith(tokens[0]) ? 0 : 1, len: name.length });
+    }
+    out.sort((a, b) => a.total - b.total || a.firstWord - b.firstWord || a.len - b.len || getName(a.it).localeCompare(getName(b.it), 'fr'));
+    return out.map(o => o.it);
+  }
 
   constructor(props) {
     super(props);
@@ -1690,9 +1733,9 @@ class Component extends DCLogic {
     const nq = Component.normalize(query);
     let searchMatches = [];
     if (nq) {
-      const foodMatches = s.foods.filter(f => Component.normalize(f.name).includes(nq)).map(f => ({ id: f.id, name: f.name, kcal: f.kcal, isRecipe: false, isScanned: !!f.barcode }));
-      const recipeMatches = s.recipes.filter(r => Component.normalize(r.name).includes(nq)).map(r => ({ id: r.id, name: r.name, kcal: r.kcalPer100g, isRecipe: true }));
-      searchMatches = [...foodMatches, ...recipeMatches].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+      const foodMatches = Component.searchRank(s.foods, query, f => f.name).map(f => ({ id: f.id, name: f.name, kcal: f.kcal, isRecipe: false, isScanned: !!f.barcode }));
+      const recipeMatches = Component.searchRank(s.recipes, query, r => r.name).map(r => ({ id: r.id, name: r.name, kcal: r.kcalPer100g, isRecipe: true }));
+      searchMatches = [...foodMatches, ...recipeMatches];
     }
     const searchResults = searchMatches.slice(0, 30).map(f => ({ ...f, kcalDisplay: this.formatEnergyDisplay(f.kcal) + '/100g', onSelect: () => this.selectFood(f.id) }));
     let recentFoods = [];
@@ -1777,8 +1820,7 @@ class Component extends DCLogic {
     });
 
     const dbQuery = Component.normalize(s.dbSearchQuery.trim());
-    let dbMatches = dbQuery ? s.foods.filter(f => Component.normalize(f.name).includes(dbQuery)) : s.foods;
-    dbMatches = [...dbMatches].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
+    let dbMatches = dbQuery ? Component.searchRank(s.foods, s.dbSearchQuery, f => f.name) : [...s.foods].sort((a, b) => a.name.localeCompare(b.name, 'fr'));
     const dbTotal = dbMatches.length;
     const dbList = dbMatches.slice(0, 60).map(f => {
       const isEditing = f.id === s.editingFoodId;
@@ -1865,7 +1907,7 @@ class Component extends DCLogic {
     const rbIngFoodIds = new Set(s.recipeBuilderIngredients.map(i => i.foodId));
     const rbQuery = Component.normalize(s.recipeIngSearchQuery.trim());
     const recipeIngSearchResults = rbQuery
-      ? s.foods.filter(f => Component.normalize(f.name).includes(rbQuery) && !rbIngFoodIds.has(f.id)).slice(0, 20)
+      ? Component.searchRank(s.foods.filter(f => !rbIngFoodIds.has(f.id)), s.recipeIngSearchQuery, f => f.name).slice(0, 20)
           .map(f => ({ ...f, kcalDisplay: this.formatEnergyDisplay(f.kcal) + '/100g', onAdd: () => this.addRecipeIngredient(f) }))
       : [];
     const recipeBuilderIngredients = s.recipeBuilderIngredients.map((ing, i) => ({
