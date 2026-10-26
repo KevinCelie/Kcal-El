@@ -1407,15 +1407,32 @@ class Component extends DCLogic {
   onSearchChange(e) { this.setState({ searchQuery: e.target.value }); }
   onDbSearchChange(e) { this.setState({ dbSearchQuery: e.target.value }); }
 
-  openNewFoodForm() { this.setState({ showNewFoodForm: true, newFoodScanNote: '', newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100', newFoodPortionKcal: '' }); }
+  openNewFoodForm() { this.setState({ showNewFoodForm: true, newFoodScanNote: '', newFoodName: '', newFoodKcal: '', newFoodBarcode: '', newFoodPortionGrams: '100', newFoodPortionKcal: '', newFoodKcalAuto: false }); }
   cancelNewFood() { this.setState({ showNewFoodForm: false, newFoodScanNote: '' }); }
   onNewFoodNameChange(e) { this.setState({ newFoodName: e.target.value }); }
-  onNewFoodKcalChange(e) { const v = e.target.value; this.setState(s => ({ newFoodKcal: v, newFoodPortionKcal: Component.portionKcalOf(v, s.newFoodPortionGrams) })); }
+  onNewFoodKcalChange(e) { const v = e.target.value; this.setState(s => ({ newFoodKcal: v, newFoodKcalAuto: false, newFoodPortionKcal: Component.portionKcalOf(v, s.newFoodPortionGrams) })); }
   onNewFoodBarcodeChange(e) { this.setState({ newFoodBarcode: e.target.value.replace(/[^0-9]/g, ''), newFoodScanNote: '' }); }
   static portionKcalOf(kcalStr, gramsStr) { const k = parseFloat(kcalStr), g = parseFloat(gramsStr); return (k >= 0 && g >= 0) ? String(Math.round(k * g / 100)) : ''; }
+  // kcal/100 g déduites des kcal et du poids d'une portion (null si impossible).
+  static kcalPer100Of(grams, pKcal) { const g = parseFloat(grams), p = parseFloat(pKcal); return (g > 0 && p >= 0) ? String(Math.round(p / g * 1000) / 10) : null; }
+  // Quand on renseigne la portion : si les kcal/100 g sont vides (ou déduites d'une saisie précédente), on les
+  // calcule ; sinon on met à jour l'autre valeur de la portion.
+  static portionEdit(s, pre, field, v) {
+    const K = pre + 'Kcal', PG = pre + 'PortionGrams', PK = pre + 'PortionKcal', AUTO = pre + 'KcalAuto';
+    const canDerive = !String(s[K]).trim() || s[AUTO];
+    const grams = field === 'grams' ? v : s[PG], pk = field === 'kcal' ? v : s[PK];
+    if (canDerive) {
+      const k100 = Component.kcalPer100Of(grams || '100', pk);
+      if (k100 !== null) return { [PG]: grams, [PK]: pk, [K]: k100, [AUTO]: true };
+      return { [PG]: grams, [PK]: pk };
+    }
+    if (field === 'grams') return { [PG]: v, [PK]: Component.portionKcalOf(s[K], v) };
+    const g = Component.portionGramsOf(s[K], v);
+    return { [PK]: v, [PG]: g === null ? s[PG] : g };
+  }
   static portionGramsOf(kcalStr, pKcalStr) { const k = parseFloat(kcalStr), p = parseFloat(pKcalStr); return (k > 0 && p >= 0) ? String(Math.round(p / k * 1000) / 10) : null; }
-  onNewFoodPortionGramsChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => ({ newFoodPortionGrams: v, newFoodPortionKcal: Component.portionKcalOf(s.newFoodKcal, v) })); }
-  onNewFoodPortionKcalChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => { const g = Component.portionGramsOf(s.newFoodKcal, v); return { newFoodPortionKcal: v, newFoodPortionGrams: g === null ? s.newFoodPortionGrams : g }; }); }
+  onNewFoodPortionGramsChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => Component.portionEdit(s, 'newFood', 'grams', v)); }
+  onNewFoodPortionKcalChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => Component.portionEdit(s, 'newFood', 'kcal', v)); }
   async saveNewFood() {
     const name = this.state.newFoodName.trim();
     const val = parseFloat(this.state.newFoodKcal);
@@ -1430,13 +1447,13 @@ class Component extends DCLogic {
     this.setState({ foods: [...this.state.foods, food] });
   }
 
-  startEditFood(food) { this.setState({ editingFoodId: food.id, editName: food.name, editKcal: String(this.formatEnergyRaw(food.kcal)), editBarcode: food.barcode || '', editPortionGrams: String(food.portionGrams || 100), editPortionKcal: String(Math.round(this.formatEnergyRaw(food.kcal) * (food.portionGrams || 100) / 100)) }); }
+  startEditFood(food) { this.setState({ editingFoodId: food.id, editKcalAuto: false, editName: food.name, editKcal: String(this.formatEnergyRaw(food.kcal)), editBarcode: food.barcode || '', editPortionGrams: String(food.portionGrams || 100), editPortionKcal: String(Math.round(this.formatEnergyRaw(food.kcal) * (food.portionGrams || 100) / 100)) }); }
   cancelEditFood() { this.setState({ editingFoodId: null }); }
   onEditNameChange(e) { this.setState({ editName: e.target.value }); }
-  onEditKcalChange(e) { const v = e.target.value; this.setState(s => ({ editKcal: v, editPortionKcal: Component.portionKcalOf(v, s.editPortionGrams) })); }
+  onEditKcalChange(e) { const v = e.target.value; this.setState(s => ({ editKcal: v, editKcalAuto: false, editPortionKcal: Component.portionKcalOf(v, s.editPortionGrams) })); }
   onEditBarcodeChange(e) { this.setState({ editBarcode: e.target.value.replace(/[^0-9]/g, '') }); }
-  onEditPortionGramsChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => ({ editPortionGrams: v, editPortionKcal: Component.portionKcalOf(s.editKcal, v) })); }
-  onEditPortionKcalChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => { const g = Component.portionGramsOf(s.editKcal, v); return { editPortionKcal: v, editPortionGrams: g === null ? s.editPortionGrams : g }; }); }
+  onEditPortionGramsChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => Component.portionEdit(s, 'edit', 'grams', v)); }
+  onEditPortionKcalChange(e) { const v = e.target.value.replace(/[^0-9.]/g, ''); this.setState(s => Component.portionEdit(s, 'edit', 'kcal', v)); }
   async saveEditFood() {
     const id = this.state.editingFoodId;
     const name = this.state.editName.trim();
